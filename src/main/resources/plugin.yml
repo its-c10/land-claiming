@@ -1,0 +1,40 @@
+name: LandClaiming
+version: ${project.version}
+main: net.dohaw.play.landclaiming.LandClaiming
+api-version: 1.13
+
+commands:
+  land:
+    description: "Opens the land claim GUI"
+  claim:
+    description: "Shortcut for claiming land. Will send a confirmation message"
+  autoclaim:
+    description: "Enables/disables the auto claim function for building"
+  unclaim:
+    description: "Un-claiming a chunk. Will send a confirmation message"
+  trust:
+    description: "Allows you to give access to a chunk"
+  landadmin:
+    description: "Opens the admin land claim GUI"
+  adminclaim:
+    description: "Makes an admin claim"
+  adminunclaim:
+    description: "Un-claims an admin claim"
+
+permissions:
+  land.guiaccess:
+    default: true
+  land.autoclaim:
+    default: true
+  land.nolimit:
+    default: op
+  land.bypassexpiry:
+    default: op
+  land.purchase:
+    default: true
+  land.admin:
+    default: op
+  land.viewplayer:
+    default: op
+  land.bypassaccess:
+    default: op

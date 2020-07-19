@@ -19,6 +19,9 @@ public final class LandClaiming extends APIHook {
 
     private void validateFiles(){
         File[] files = {new File(getDataFolder(), "config.yml"), new File(getDataFolder(), "messages.yml")};
+
+        File playerDataFolder = new File(getDataFolder(), "data");
+
         for(File f : files){
             if(!f.exists()){
                 saveResource(f.getName(), false);

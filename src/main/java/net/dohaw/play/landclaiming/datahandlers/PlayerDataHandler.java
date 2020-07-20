@@ -2,12 +2,13 @@ package net.dohaw.play.landclaiming.datahandlers;
 
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.PlayerData;
+import net.dohaw.play.landclaiming.region.RegionData;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerDataHandler {
 
@@ -57,5 +58,35 @@ public class PlayerDataHandler {
         return playerData;
     }
 
+    /*
+        Saves region data as well because it is a part of player data.
+     */
+    public void save(PlayerData data){
+
+        UUID uuid = data.getUUID();
+        File playerDataFile = new File(plugin.getDataFolder() + "/data/" + uuid.toString(), "playerData.yml");
+        FileConfiguration config = data.getConfig();
+
+        HashMap<UUID, RegionData> regionData = data.getRegions();
+        Iterator<Map.Entry<UUID, RegionData>> itr = regionData.entrySet().iterator();
+
+        /*
+            Saves region data
+         */
+        while(itr.hasNext()){
+            regionDataHandler.save(itr.next().getValue());
+        }
+
+        /*
+            Player data stuff
+         */
+        config.set("uuid", uuid);
+
+        try {
+            config.save(playerDataFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

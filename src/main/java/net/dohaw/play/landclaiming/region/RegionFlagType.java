@@ -22,5 +22,8 @@ public enum RegionFlagType {
         this.configKey = configKey;
     }
 
+    public String getConfigKey(){
+        return configKey;
+    }
 
 }

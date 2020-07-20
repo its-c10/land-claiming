@@ -13,7 +13,7 @@ public class RegionData {
     private EnumMap<RegionFlagType, RegionFlag> flags = new EnumMap<>(RegionFlagType.class);
     private RegionDescription description;
     private RegionType type;
-    private UUID chunkUUID;
+    private UUID chunkUUID, ownerUUID;
     private List<PlayerData> trustedPlayers = new ArrayList<>();
     private FileConfiguration config;
 
@@ -36,6 +36,10 @@ public class RegionData {
         trustedPlayers.add(data);
     }
 
+    public List<PlayerData> getTrustedPlayers(){
+        return trustedPlayers;
+    }
+
     public EnumMap<RegionFlagType, RegionFlag> getFlags() {
         return flags;
     }
@@ -44,7 +48,7 @@ public class RegionData {
         this.flags = flags;
     }
 
-    public RegionDescription getType() {
+    public RegionType getType() {
         return type;
     }
 
@@ -66,5 +70,13 @@ public class RegionData {
 
     public void setDescription(RegionDescription description) {
         this.description = description;
+    }
+
+    public UUID getOwnerUUID() {
+        return ownerUUID;
+    }
+
+    public void setOwnerUUID(UUID ownerUUID) {
+        this.ownerUUID = ownerUUID;
     }
 }

@@ -29,21 +29,27 @@ public class PlayerDataManager {
     }
 
     public void removePlayerData(UUID uuid){
+        playerDataHandler.save(playerData.get(uuid));
         playerData.remove(uuid);
     }
 
     /*
         Run this if the player has had player data previously.
      */
-    public void addPlayerData(UUID uuid){
-
+    public void loadPlayerData(UUID uuid){
+        /*
+            99% of the time it wouldn't have the key, but just putting this check in place just in case
+         */
+        if(!playerData.containsKey(uuid)){
+            playerData.put(uuid, playerDataHandler.load(uuid));
+        }
     }
 
     /*
         Run this if the player has never had player data
      */
-    public void createPlayerData(){
-
+    public void createPlayerData(UUID uuid){
+        playerData.put(uuid, playerDataHandler.create(uuid));
     }
 
     public void shutDown(){
@@ -54,8 +60,16 @@ public class PlayerDataManager {
         }
     }
 
+    /*
+        Dictates whether you need to create player data files for this player
+     */
+    public boolean hasExistingPlayerDataFiles(UUID uuid){
+        return playerDataHandler.hasExistingPlayerData(uuid);
+    }
+
+    /*
     private void createPlayerFiles(){
 
-    }
+    }*/
 
 }

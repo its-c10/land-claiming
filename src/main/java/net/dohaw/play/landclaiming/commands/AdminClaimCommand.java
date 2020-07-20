@@ -1,4 +1,4 @@
 package net.dohaw.play.landclaiming.commands;
 
-public class Claim {
+public class AdminClaimCommand {
 }

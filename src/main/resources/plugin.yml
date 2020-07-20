@@ -2,7 +2,8 @@ name: LandClaiming
 version: ${project.version}
 main: net.dohaw.play.landclaiming.LandClaiming
 api-version: 1.13
-
+depend:
+  - CoreAPI
 commands:
   land:
     description: "Opens the land claim GUI"

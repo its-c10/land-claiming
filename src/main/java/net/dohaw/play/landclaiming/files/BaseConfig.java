@@ -9,4 +9,8 @@ public class BaseConfig extends ConfigManager {
         super(plugin, "config.yml");
     }
 
+    public String getPluginPrefix(){
+        return config.getString("Prefix");
+    }
+
 }

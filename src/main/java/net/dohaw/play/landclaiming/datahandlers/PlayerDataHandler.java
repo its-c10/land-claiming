@@ -20,11 +20,10 @@ public class PlayerDataHandler {
         this.regionDataHandler = new RegionDataHandler(plugin);
     }
 
-    public PlayerData load(FileConfiguration config){
+    public PlayerData load(UUID uuid){
 
-        UUID uuid = UUID.fromString(config.getString("UUID"));
+        File playerDataFile = new File(plugin.getDataFolder() + "/data/" + uuid.toString(), "playerData.yml");
         PlayerData data = new PlayerData(uuid);
-
 
 
         return data;
@@ -53,8 +52,14 @@ public class PlayerDataHandler {
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerDataFile);
 
         config.set("uuid", uuid.toString());
-
         playerData.setConfig(config);
+
+        try {
+            config.save(playerDataFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return playerData;
     }
 
@@ -80,7 +85,7 @@ public class PlayerDataHandler {
         /*
             Player data stuff
          */
-        config.set("uuid", uuid);
+        config.set("uuid", uuid.toString());
 
         try {
             config.save(playerDataFile);

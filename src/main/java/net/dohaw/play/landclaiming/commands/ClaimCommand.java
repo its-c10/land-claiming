@@ -80,9 +80,8 @@ public class ClaimCommand implements CommandExecutor {
                             }
                         }else{
                             RegionData rd = regionDataManager.getDataFromLocation(playerLocation);
-                            Bukkit.broadcastMessage(regionDataManager.getRegionData().toString());
                             OfflinePlayer regionOwner = Bukkit.getOfflinePlayer(rd.getOwnerUUID());
-                            chatFactory.sendPlayerMessage("This chunk has already been claimed by &e&l" + regionOwner + "!", true, sender, PREFIX);
+                            chatFactory.sendPlayerMessage("This chunk has already been claimed by &e&l" + regionOwner.getName() + "!", true, sender, PREFIX);
                         }
                     }else{
                         msg = messagesConfig.getMessage(Message.LAND_CLAIM_FAIL) ;

@@ -10,6 +10,7 @@ import net.dohaw.play.landclaiming.files.MessagesConfig;
 import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 
@@ -32,6 +33,10 @@ public final class LandClaiming extends APIHook {
         this.defaultRegionFlagsConfig = new DefaultRegionFlagsConfig(this);
         this.playerDataManager = new PlayerDataManager(this);
         this.regionDataManager = new RegionDataManager(this);
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            playerDataManager.loadPlayerData(player.getUniqueId());
+        }
 
         regionDataManager.loadData();
 

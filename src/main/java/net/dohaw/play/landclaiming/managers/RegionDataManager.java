@@ -25,7 +25,7 @@ public class RegionDataManager {
     }
 
     public void loadData(){
-        regionDataHandler.load();
+        this.regionDataList = regionDataHandler.load();
     }
 
     public void saveData(){
@@ -63,7 +63,7 @@ public class RegionDataManager {
 
     public RegionData getDataFromChunk(Chunk chunk){
         for(RegionData rd : regionDataList){
-            if(rd.equals(chunk)){
+            if(rd.getChunk().equals(chunk)){
                 return rd;
             }
         }

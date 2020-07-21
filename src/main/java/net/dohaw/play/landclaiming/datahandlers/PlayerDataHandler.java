@@ -17,7 +17,7 @@ public class PlayerDataHandler {
 
     public PlayerDataHandler(LandClaiming plugin){
         this.plugin = plugin;
-        this.regionDataHandler = new RegionDataHandler(plugin);
+        this.regionDataHandler = plugin.getRegionDataHandler();
     }
 
     public PlayerData load(UUID uuid){
@@ -63,24 +63,19 @@ public class PlayerDataHandler {
         return playerData;
     }
 
-    /*
-        Saves region data as well because it is a part of player data.
-     */
     public void save(PlayerData data){
 
         UUID uuid = data.getUUID();
         File playerDataFile = new File(plugin.getDataFolder() + "/data/" + uuid.toString(), "playerData.yml");
         FileConfiguration config = data.getConfig();
 
-        HashMap<UUID, RegionData> regionData = data.getRegions();
-        Iterator<Map.Entry<UUID, RegionData>> itr = regionData.entrySet().iterator();
+        //HashMap<UUID, RegionData> regionData = data.getRegions();
+        //Iterator<Map.Entry<UUID, RegionData>> itr = regionData.entrySet().iterator();
 
         /*
-            Saves region data
-         */
         while(itr.hasNext()){
             regionDataHandler.save(itr.next().getValue());
-        }
+        }*/
 
         /*
             Player data stuff

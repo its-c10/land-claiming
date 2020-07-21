@@ -2,21 +2,24 @@ package net.dohaw.play.landclaiming;
 
 import me.c10coding.coreapi.APIHook;
 import net.dohaw.play.landclaiming.commands.LandCommand;
+import net.dohaw.play.landclaiming.datahandlers.RegionDataHandler;
 import net.dohaw.play.landclaiming.events.PlayerWatcher;
 import net.dohaw.play.landclaiming.files.BaseConfig;
 import net.dohaw.play.landclaiming.files.DefaultRegionFlagsConfig;
 import net.dohaw.play.landclaiming.files.MessagesConfig;
-import net.dohaw.play.landclaiming.managers.PlayerDataManager;
+import net.dohaw.play.landclaiming.files.PlayersWithRegionsConfig;
 import org.bukkit.Bukkit;
 
 import java.io.File;
 
 public final class LandClaiming extends APIHook {
 
-    private PlayerDataManager playerDataManager;
+    private DataManager dataManager;
     private DefaultRegionFlagsConfig defaultRegionFlagsConfig;
     private MessagesConfig messagesConfig;
     private BaseConfig baseConfig;
+    private RegionDataHandler regionDataHandler;
+    private PlayersWithRegionsConfig playersWithRegionsConfig;
 
     @Override
     public void onEnable() {
@@ -24,10 +27,14 @@ public final class LandClaiming extends APIHook {
         hookAPI(this);
         validateFiles();
 
-        this.playerDataManager = new PlayerDataManager(this);
+        this.playersWithRegionsConfig = new PlayersWithRegionsConfig(this);
         this.defaultRegionFlagsConfig = new DefaultRegionFlagsConfig(this);
+        this.regionDataHandler = new RegionDataHandler(this);
+        this.dataManager = new DataManager(this);
         this.messagesConfig = new MessagesConfig(this);
         this.baseConfig = new BaseConfig(this);
+
+        dataManager.loadData();
 
         registerEvents();
         registerCommands();
@@ -36,10 +43,10 @@ public final class LandClaiming extends APIHook {
 
     @Override
     public void onDisable() {
-        if(playerDataManager != null){
-            playerDataManager.shutDown();
+        if(dataManager != null){
+            dataManager.shutDown();
         }
-        playerDataManager = null;
+        dataManager = null;
     }
 
     private void registerEvents(){
@@ -51,7 +58,7 @@ public final class LandClaiming extends APIHook {
     }
 
     private void validateFiles(){
-        File[] files = {new File(getDataFolder(), "config.yml"), new File(getDataFolder(), "messages.yml"), new File(getDataFolder(), "defaultRegionFlags.yml")};
+        File[] files = {new File(getDataFolder(), "config.yml"), new File(getDataFolder(), "messages.yml"), new File(getDataFolder(), "defaultRegionFlags.yml"), new File(getDataFolder(), "playersWithRegions.yml")};
 
         File playerDataFolder = new File(getDataFolder(), "data");
 
@@ -67,8 +74,16 @@ public final class LandClaiming extends APIHook {
         getLogger().info("Validated files!");
     }
 
-    public PlayerDataManager getPlayerDataManager(){
-        return playerDataManager;
+    public DataManager getDataManager(){
+        return dataManager;
+    }
+
+    public RegionDataHandler getRegionDataHandler(){
+        return regionDataHandler;
+    }
+
+    public PlayersWithRegionsConfig getPlayersWithRegionsConfig(){
+        return playersWithRegionsConfig;
     }
 
     public DefaultRegionFlagsConfig getDefaultRegionFlagsConfig() {

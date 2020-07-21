@@ -1,4 +1,4 @@
 package net.dohaw.play.landclaiming.commands;
 
-public class AutoClaim {
+public class AutoClaimCommand {
 }

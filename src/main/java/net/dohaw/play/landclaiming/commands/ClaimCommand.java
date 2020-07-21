@@ -37,13 +37,16 @@ public class ClaimCommand implements CommandExecutor {
         if(sender instanceof Player){
             Player player = (Player) sender;
             Location playerLocation = player.getLocation();
-            if(!regionDataManager.hasData(playerLocation)){
-
-            }else{
-                RegionData rd = regionDataManager.getDataFromLocation(playerLocation);
-                OfflinePlayer regionOwner = Bukkit.getOfflinePlayer(rd.getOwnerUUID());
-                chatFactory.sendPlayerMessage("This chunk has already been claimed by &e&l" + regionOwner + "!", true, sender, PREFIX);
+            if(){
+                if(!regionDataManager.hasData(playerLocation)){
+                    RegionData newRegionData = new RegionData();
+                }else{
+                    RegionData rd = regionDataManager.getDataFromLocation(playerLocation);
+                    OfflinePlayer regionOwner = Bukkit.getOfflinePlayer(rd.getOwnerUUID());
+                    chatFactory.sendPlayerMessage("This chunk has already been claimed by &e&l" + regionOwner + "!", true, sender, PREFIX);
+                }
             }
+
         }
 
         return false;

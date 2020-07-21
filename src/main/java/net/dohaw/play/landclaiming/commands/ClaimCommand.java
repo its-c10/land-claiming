@@ -1,30 +1,35 @@
 package net.dohaw.play.landclaiming.commands;
 
 import me.c10coding.coreapi.chat.ChatFactory;
-import net.dohaw.play.landclaiming.DataManager;
 import net.dohaw.play.landclaiming.LandClaiming;
-import net.dohaw.play.landclaiming.PlayerData;
+import net.dohaw.play.landclaiming.files.BaseConfig;
+import net.dohaw.play.landclaiming.files.MessagesConfig;
+import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import net.dohaw.play.landclaiming.region.RegionData;
-import org.bukkit.Chunk;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.UUID;
-
 public class ClaimCommand implements CommandExecutor {
 
     private LandClaiming plugin;
-    private DataManager dataManager;
+    private RegionDataManager regionDataManager;
     private ChatFactory chatFactory;
+    private MessagesConfig messagesConfig;
+    private BaseConfig baseConfig;
+    private final String PREFIX;
 
     public ClaimCommand(LandClaiming plugin){
         this.plugin = plugin;
         this.chatFactory = plugin.getAPI().getChatFactory();
-        this.dataManager = plugin.getDataManager();
+        this.regionDataManager = plugin.getRegionDataManager();
+        this.messagesConfig = plugin.getMessagesConfig();
+        this.baseConfig = plugin.getBaseConfig();
+        this.PREFIX = baseConfig.getPluginPrefix();
     }
 
     @Override
@@ -32,15 +37,12 @@ public class ClaimCommand implements CommandExecutor {
         if(sender instanceof Player){
             Player player = (Player) sender;
             Location playerLocation = player.getLocation();
-            UUID chunkUUID = playerLocation.getChunk().
-            if(){
+            if(!regionDataManager.hasData(playerLocation)){
 
-            }
-            if(dataManager.getPlayerData(player.getUniqueId()) != null){
-                PlayerData playerData = dataManager.getPlayerData(player.getUniqueId());
-                HashMap<UUID, RegionData> regions = playerData.getRegions();
             }else{
-
+                RegionData rd = regionDataManager.getDataFromLocation(playerLocation);
+                OfflinePlayer regionOwner = Bukkit.getOfflinePlayer(rd.getOwnerUUID());
+                chatFactory.sendPlayerMessage("This chunk has already been claimed by &e&l" + regionOwner + "!", true, sender, PREFIX);
             }
         }
 

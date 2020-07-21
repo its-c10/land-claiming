@@ -13,4 +13,8 @@ public class BaseConfig extends ConfigManager {
         return config.getString("Prefix");
     }
 
+    public int getDefaultChunkAmount(){
+        return config.getInt("Default Chunk Amount");
+    }
+
 }

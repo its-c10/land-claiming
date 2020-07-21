@@ -2,47 +2,41 @@ package net.dohaw.play.landclaiming.datahandlers;
 
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.PlayerData;
-import net.dohaw.play.landclaiming.region.RegionData;
+import net.dohaw.play.landclaiming.files.BaseConfig;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.UUID;
 
 public class PlayerDataHandler {
 
     private LandClaiming plugin;
-    private RegionDataHandler regionDataHandler;
+    private BaseConfig baseConfig;
 
     public PlayerDataHandler(LandClaiming plugin){
         this.plugin = plugin;
-        this.regionDataHandler = plugin.getRegionDataHandler();
+        this.baseConfig = plugin.getBaseConfig();
     }
 
     public PlayerData load(UUID uuid){
 
-        File playerDataFile = new File(plugin.getDataFolder() + "/data/" + uuid.toString(), "playerData.yml");
-        PlayerData data = new PlayerData(uuid);
+        File playerDataFile = new File(plugin.getDataFolder() + "/playerData", uuid.toString() + ".yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(playerDataFile);
 
+        PlayerData data = new PlayerData(uuid);
+        data.setConfig(config);
+        data.setClaimAmount(config.getInt("Claim Amount"));
 
         return data;
     }
 
-    public boolean hasExistingPlayerData(UUID uuid){
-        File playerFolder = new File(plugin.getDataFolder() + "/data", uuid.toString() + ".yml");
-        return playerFolder.exists();
-    }
-
     public PlayerData create(UUID uuid){
 
-        File playerFolder = new File(plugin.getDataFolder() + "/data", uuid.toString());
-        File regionFolder = new File(plugin.getDataFolder() + "/data/" + uuid.toString(), "regionData");
-        File playerDataFile = new File(plugin.getDataFolder() + "/data/" + uuid.toString(), "playerData.yml");
+        File playerDataFile = new File(plugin.getDataFolder() + "/playerData", uuid.toString() + ".yml");
 
         try{
-            playerFolder.mkdirs();
-            regionFolder.mkdirs();
             playerDataFile.createNewFile();
         }catch(IOException e){
             e.printStackTrace();
@@ -51,7 +45,7 @@ public class PlayerDataHandler {
         PlayerData playerData = new PlayerData(uuid);
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerDataFile);
 
-        config.set("uuid", uuid.toString());
+        config.set("Claim Amount", baseConfig.getDefaultChunkAmount());
         playerData.setConfig(config);
 
         try {
@@ -66,27 +60,20 @@ public class PlayerDataHandler {
     public void save(PlayerData data){
 
         UUID uuid = data.getUUID();
-        File playerDataFile = new File(plugin.getDataFolder() + "/data/" + uuid.toString(), "playerData.yml");
+        File playerDataFile = new File(plugin.getDataFolder() + "/playerData", uuid.toString() + ".yml");
         FileConfiguration config = data.getConfig();
 
-        //HashMap<UUID, RegionData> regionData = data.getRegions();
-        //Iterator<Map.Entry<UUID, RegionData>> itr = regionData.entrySet().iterator();
-
-        /*
-        while(itr.hasNext()){
-            regionDataHandler.save(itr.next().getValue());
-        }*/
-
-        /*
-            Player data stuff
-         */
-        config.set("uuid", uuid.toString());
+        config.set("Claim Amount", data.getClaimAmount());
 
         try {
             config.save(playerDataFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean hasDataFiles(UUID uuid){
+        return new File(plugin.getDataFolder() + "/playerData", uuid.toString() + ".yml").exists();
     }
 
 }

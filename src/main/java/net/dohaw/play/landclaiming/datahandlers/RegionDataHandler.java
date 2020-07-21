@@ -1,9 +1,16 @@
 package net.dohaw.play.landclaiming.datahandlers;
 
+import me.c10coding.coreapi.serializers.LocationSerializer;
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.PlayerData;
+import net.dohaw.play.landclaiming.Utils;
+import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.files.DefaultRegionFlagsConfig;
+import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import net.dohaw.play.landclaiming.region.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -21,47 +28,79 @@ public class RegionDataHandler {
         this.defaultRegionFlagsConfig = plugin.getDefaultRegionFlagsConfig();
     }
 
-    public RegionData load(UUID playerUUID, UUID regionUUID){
+    public List<RegionData> load(){
 
-        File regionFile = new File(plugin.getDataFolder() + "/data/" + playerUUID.toString() + "/regionData", regionUUID.toString() + ".yml");
-        FileConfiguration config = YamlConfiguration.loadConfiguration(regionFile);
+        List<RegionData> regionDataList = new ArrayList<>();
+        List<File> regionConfigs = Utils.getFilesInConfig(new File(plugin.getDataFolder(), "regionData"));
 
-        RegionDescription desc = RegionDescription.valueOf(config.getString("Description"));
-        RegionType type = RegionType.valueOf(config.getString("Type"));
-        UUID uid = UUID.fromString(config.getString("UID"));
-        UUID ownerUUID = UUID.fromString(config.getString("Owner"));
-        RegionData regionData = new RegionData(uid, desc, type);
+        for(File file : regionConfigs){
 
-        regionData.setConfig(config);
-        regionData.setFlags(loadFlags(config));
-        regionData.setOwnerUUID(ownerUUID);
-        return regionData;
+            FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+            RegionDescription desc = RegionDescription.valueOf(config.getString("Description"));
+            RegionType type = RegionType.valueOf(config.getString("Type"));
+            UUID ownerUUID = UUID.fromString(config.getString("Owner"));
+            String regionName = config.getString("Name");
+
+            LocationSerializer ls = plugin.getAPI().createLocationSerializer(config);
+            Location regionLocation = ls.toLocationFromPath("Location");
+            Chunk chunk = regionLocation.getChunk();
+
+            RegionData regionData = new RegionData(regionName, chunk, desc, type);
+
+            regionData.setFile(file);
+            regionData.setConfig(config);
+            regionData.setFlags(loadFlags(config));
+            regionData.setOwnerUUID(ownerUUID);
+
+            regionDataList.add(regionData);
+        }
+        return regionDataList;
     }
 
-    public RegionData create(UUID playerUUID, UUID regionUID, RegionDescription desc, RegionType type){
-        RegionData newRegionData = new RegionData(regionUID, desc, type);
+    public RegionData create(UUID ownerUUID, Chunk chunk, RegionDescription desc, RegionType type){
 
-        File regionFile = new File(plugin.getDataFolder() + "/data/" + playerUUID.toString() + "/regionData", regionUID.toString() + ".yml");
+        String regionName = getRegionName(ownerUUID);
+        File regionFile = new File(plugin.getDataFolder() + "/regionData", regionName);
+        try{
+            regionFile.createNewFile();
+        }catch(IOException e){
+            plugin.getLogger().severe("Could not create the region file " + regionFile.getName());
+            e.printStackTrace();
+            return null;
+        }
+
         FileConfiguration config = YamlConfiguration.loadConfiguration(regionFile);
+        RegionData newRegionData = new RegionData(regionName, chunk, desc, type);
 
+        newRegionData.setFile(regionFile);
         newRegionData.setConfig(config);
         newRegionData.setFlags(defaultRegionFlagsConfig.loadDefaultFlags(type));
-        newRegionData.setOwnerUUID(playerUUID);
+        newRegionData.setOwnerUUID(ownerUUID);
         return newRegionData;
+    }
+
+    private String getRegionName(UUID ownerUUID){
+        RegionDataManager regionDataManager = plugin.getRegionDataManager();
+        int playerNumRegions = regionDataManager.getPlayerRegionData(ownerUUID).size();
+        String playerName = Bukkit.getPlayer(ownerUUID).getName();
+        return playerName + "_" + (playerNumRegions + 1);
     }
 
     public void save(RegionData data){
 
-        File regionFile = new File(plugin.getDataFolder() + "/data/" + data.getOwnerUUID().toString() + "/regionData", data.getChunkUUID().toString() + ".yml");
+        File file = data.getFile();
         FileConfiguration config = data.getConfig();
+        LocationSerializer ls = plugin.getAPI().createLocationSerializer(config);
+
         config.set("Description", data.getDescription().name());
         config.set("Type", data.getType().name());
-        config.set("UID", data.getChunkUUID());
         config.set("Owner", data.getOwnerUUID().toString());
+        config.set("Name", data.getName());
+        ls.storeLocation("Location", data.getChunk().getBlock(0, 0,0).getLocation());
 
-        List<PlayerData> trustedPlayers = data.getTrustedPlayers();
+        List<UUID> trustedPlayers = data.getTrustedPlayers();
         List<String> trustedPlayerStr = new ArrayList<>();
-        trustedPlayers.forEach(d -> trustedPlayerStr.add(d.getUUID().toString()));
+        trustedPlayers.forEach(d -> trustedPlayerStr.add(d.toString()));
         config.set("Trusted Players", trustedPlayerStr);
 
         Iterator<Map.Entry<RegionFlagType, RegionFlag>> it = data.getFlags().entrySet().iterator();
@@ -73,7 +112,7 @@ public class RegionDataHandler {
         }
 
         try{
-            config.save(regionFile);
+            config.save(file);
         }catch(IOException e){
             e.printStackTrace();
         }

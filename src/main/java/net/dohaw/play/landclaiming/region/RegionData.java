@@ -1,8 +1,11 @@
 package net.dohaw.play.landclaiming.region;
 
 import net.dohaw.play.landclaiming.PlayerData;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -13,30 +16,37 @@ public class RegionData {
     private EnumMap<RegionFlagType, RegionFlag> flags = new EnumMap<>(RegionFlagType.class);
     private RegionDescription description;
     private RegionType type;
-    private UUID chunkUUID, ownerUUID;
-    private List<PlayerData> trustedPlayers = new ArrayList<>();
+    private UUID ownerUUID;
+    private Chunk chunk;
+    private List<UUID> trustedPlayers = new ArrayList<>();
     private FileConfiguration config;
+    private File file;
+    private String name;
 
-    public RegionData(UUID chunkUUID, RegionDescription description, RegionType type){
-        this.chunkUUID = chunkUUID;
+    public RegionData(String name, Chunk chunk, RegionDescription description, RegionType type){
         this.type = type;
         this.description = description;
+        this.chunk = chunk;
+        this.name = name;
     }
 
     public boolean isTrusted(UUID uuid){
-        for(PlayerData data : trustedPlayers){
-            if(data.getUUID().equals(uuid)){
-                return true;
-            }
-        }
-        return false;
+        return trustedPlayers.contains(uuid);
+    }
+
+    public boolean isOwner(UUID uuid){
+        return uuid == getOwnerUUID();
     }
 
     public void addTrustedPlayer(PlayerData data){
-        trustedPlayers.add(data);
+        trustedPlayers.add(data.getUUID());
     }
 
-    public List<PlayerData> getTrustedPlayers(){
+    public void addTrustedPlayer(UUID uuid){
+        trustedPlayers.add(uuid);
+    }
+
+    public List<UUID> getTrustedPlayers(){
         return trustedPlayers;
     }
 
@@ -50,10 +60,6 @@ public class RegionData {
 
     public RegionType getType() {
         return type;
-    }
-
-    public UUID getChunkUUID() {
-        return chunkUUID;
     }
 
     public FileConfiguration getConfig() {
@@ -78,5 +84,25 @@ public class RegionData {
 
     public void setOwnerUUID(UUID ownerUUID) {
         this.ownerUUID = ownerUUID;
+    }
+
+    public Chunk getChunk() {
+        return chunk;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

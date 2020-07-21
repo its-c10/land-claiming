@@ -1,10 +1,11 @@
 package net.dohaw.play.landclaiming.managers;
 
 import net.dohaw.play.landclaiming.LandClaiming;
-import net.dohaw.play.landclaiming.datahandlers.RegionDataHandler;
+import net.dohaw.play.landclaiming.handlers.RegionDataHandler;
 import net.dohaw.play.landclaiming.region.RegionData;
 import net.dohaw.play.landclaiming.region.RegionDescription;
 import net.dohaw.play.landclaiming.region.RegionType;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 
@@ -33,6 +34,10 @@ public class RegionDataManager {
         }
     }
 
+    public List<RegionData> getRegionData(){
+        return regionDataList;
+    }
+
     public boolean hasData(Chunk chunk){
         for(RegionData rd : regionDataList){
             if(rd.getChunk().equals(chunk)){
@@ -44,6 +49,12 @@ public class RegionDataManager {
 
     public boolean hasData(Location location){
         return hasData(location.getChunk());
+    }
+
+    public RegionData create(UUID owner, Chunk chunk, RegionDescription desc, RegionType type){
+        RegionData regionData = regionDataHandler.create(owner, chunk, desc, type);
+        regionDataList.add(regionData);
+        return regionData;
     }
 
     public RegionData getDataFromLocation(Location loc){

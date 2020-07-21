@@ -1,4 +1,4 @@
-package net.dohaw.play.landclaiming.datahandlers;
+package net.dohaw.play.landclaiming.handlers;
 
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.PlayerData;
@@ -45,8 +45,11 @@ public class PlayerDataHandler {
         PlayerData playerData = new PlayerData(uuid);
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerDataFile);
 
-        config.set("Claim Amount", baseConfig.getDefaultChunkAmount());
+        int defaultChunkAmount = baseConfig.getDefaultChunkAmount();
+        config.set("Claim Amount", defaultChunkAmount);
+
         playerData.setConfig(config);
+        playerData.setClaimAmount(defaultChunkAmount);
 
         try {
             config.save(playerDataFile);

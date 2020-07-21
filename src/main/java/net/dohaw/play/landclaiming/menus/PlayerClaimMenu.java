@@ -4,7 +4,8 @@ import me.c10coding.coreapi.APIHook;
 import me.c10coding.coreapi.menus.Menu;
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.PlayerData;
-import net.dohaw.play.landclaiming.DataManager;
+import net.dohaw.play.landclaiming.managers.PlayerDataManager;
+import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import net.dohaw.play.landclaiming.region.RegionData;
 import net.dohaw.play.landclaiming.region.RegionDescription;
 import org.bukkit.Material;
@@ -12,23 +13,27 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class PlayerClaimMenu extends Menu {
 
-    private DataManager dataManager;
-    private HashMap<UUID, RegionData> regionData;
+    private PlayerDataManager playerDataManager;
+    private RegionDataManager regionDataManager;
+    private List<RegionData> regionData;
 
     public PlayerClaimMenu(APIHook plugin) {
         super(plugin, "Player Claim Types", 9);
-        this.dataManager = ((LandClaiming)plugin).getDataManager();
+        this.playerDataManager = ((LandClaiming)plugin).getPlayerDataManager();
+        this.regionDataManager = ((LandClaiming) plugin).getRegionDataManager();
     }
 
     @Override
     public void initializeItems(Player player) {
 
-        PlayerData playerData = dataManager.getPlayerData(player.getUniqueId());
-        this.regionData = playerData.getRegions();
+        this.regionData = regionDataManager.getPlayerRegionData(player.getUniqueId());
 
         inv.addItem(createGuiItem(Material.SPONGE, "&eAll Regions", regionData.size() == 0 ? 1 : regionData.size(), new ArrayList<>()));
         inv.addItem(createGuiItem(Material.SAND, "&eHome", getNumRegionType(RegionDescription.HOME) == 0 ? 1 : getNumRegionType(RegionDescription.HOME), new ArrayList<>()));
@@ -51,8 +56,8 @@ public class PlayerClaimMenu extends Menu {
 
     private int getNumRegionType(RegionDescription desc){
         int num = 0;
-        for(Map.Entry<UUID, RegionData> entry : regionData.entrySet()){
-            if(entry.getValue().getDescription() == desc){
+        for(RegionData data : regionData){
+            if(data.getDescription() == desc){
                 num++;
             }
         }

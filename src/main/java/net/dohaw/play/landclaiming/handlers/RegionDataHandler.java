@@ -1,10 +1,8 @@
-package net.dohaw.play.landclaiming.datahandlers;
+package net.dohaw.play.landclaiming.handlers;
 
 import me.c10coding.coreapi.serializers.LocationSerializer;
 import net.dohaw.play.landclaiming.LandClaiming;
-import net.dohaw.play.landclaiming.PlayerData;
 import net.dohaw.play.landclaiming.Utils;
-import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.files.DefaultRegionFlagsConfig;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import net.dohaw.play.landclaiming.region.*;
@@ -60,7 +58,8 @@ public class RegionDataHandler {
     public RegionData create(UUID ownerUUID, Chunk chunk, RegionDescription desc, RegionType type){
 
         String regionName = getRegionName(ownerUUID);
-        File regionFile = new File(plugin.getDataFolder() + "/regionData", regionName);
+        File regionFile = new File(plugin.getDataFolder() + "/regionData", regionName + ".yml");
+
         try{
             regionFile.createNewFile();
         }catch(IOException e){
@@ -76,6 +75,13 @@ public class RegionDataHandler {
         newRegionData.setConfig(config);
         newRegionData.setFlags(defaultRegionFlagsConfig.loadDefaultFlags(type));
         newRegionData.setOwnerUUID(ownerUUID);
+
+        try{
+            config.save(regionFile);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
         return newRegionData;
     }
 

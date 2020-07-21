@@ -2,12 +2,12 @@ package net.dohaw.play.landclaiming.managers;
 
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.PlayerData;
-import net.dohaw.play.landclaiming.datahandlers.PlayerDataHandler;
-import net.dohaw.play.landclaiming.datahandlers.RegionDataHandler;
-import net.dohaw.play.landclaiming.files.PlayersWithRegionsConfig;
-import net.dohaw.play.landclaiming.region.RegionData;
+import net.dohaw.play.landclaiming.handlers.PlayerDataHandler;
+import org.bukkit.Bukkit;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 
 public class PlayerDataManager{
@@ -18,6 +18,7 @@ public class PlayerDataManager{
 
     public PlayerDataManager(LandClaiming plugin){
         this.plugin = plugin;
+        this.playerDataHandler = new PlayerDataHandler(plugin);
     }
 
     public Map<UUID, PlayerData> getAllData(){
@@ -48,6 +49,17 @@ public class PlayerDataManager{
 
     public boolean hasDataOnRecord(UUID uuid){
         return playerDataHandler.hasDataFiles(uuid);
+    }
+
+    public int getNumClaimsAvailable(UUID uuid){
+        PlayerData data = dataMap.get(uuid);
+        return data.getClaimAmount();
+    }
+
+    public void reduceClaimAmount(UUID uuid){
+        PlayerData data = getData(uuid);
+        data.setClaimAmount(data.getClaimAmount() - 1);
+        setData(uuid, data);
     }
 
     public void createPlayerData(UUID uuid){

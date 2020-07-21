@@ -1,13 +1,12 @@
 package net.dohaw.play.landclaiming;
 
 import me.c10coding.coreapi.APIHook;
+import net.dohaw.play.landclaiming.commands.ClaimCommand;
 import net.dohaw.play.landclaiming.commands.LandCommand;
-import net.dohaw.play.landclaiming.datahandlers.RegionDataHandler;
 import net.dohaw.play.landclaiming.events.PlayerWatcher;
 import net.dohaw.play.landclaiming.files.BaseConfig;
 import net.dohaw.play.landclaiming.files.DefaultRegionFlagsConfig;
 import net.dohaw.play.landclaiming.files.MessagesConfig;
-import net.dohaw.play.landclaiming.files.PlayersWithRegionsConfig;
 import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import org.bukkit.Bukkit;
@@ -21,7 +20,6 @@ public final class LandClaiming extends APIHook {
     private DefaultRegionFlagsConfig defaultRegionFlagsConfig;
     private MessagesConfig messagesConfig;
     private BaseConfig baseConfig;
-    private PlayersWithRegionsConfig playersWithRegionsConfig;
 
     @Override
     public void onEnable() {
@@ -29,12 +27,11 @@ public final class LandClaiming extends APIHook {
         hookAPI(this);
         validateFiles();
 
-        this.playersWithRegionsConfig = new PlayersWithRegionsConfig(this);
+        this.baseConfig = new BaseConfig(this);
+        this.messagesConfig = new MessagesConfig(this);
         this.defaultRegionFlagsConfig = new DefaultRegionFlagsConfig(this);
         this.playerDataManager = new PlayerDataManager(this);
         this.regionDataManager = new RegionDataManager(this);
-        this.messagesConfig = new MessagesConfig(this);
-        this.baseConfig = new BaseConfig(this);
 
         regionDataManager.loadData();
 
@@ -61,10 +58,11 @@ public final class LandClaiming extends APIHook {
 
     private void registerCommands(){
         getServer().getPluginCommand("land").setExecutor(new LandCommand(this));
+        getServer().getPluginCommand("claim").setExecutor(new ClaimCommand(this));
     }
 
     private void validateFiles(){
-        File[] files = {new File(getDataFolder(), "config.yml"), new File(getDataFolder(), "messages.yml"), new File(getDataFolder(), "defaultRegionFlags.yml"), new File(getDataFolder(), "playersWithRegions.yml")};
+        File[] files = {new File(getDataFolder(), "config.yml"), new File(getDataFolder(), "messages.yml"), new File(getDataFolder(), "defaultRegionFlags.yml")};
 
         File playerDataFolder = new File(getDataFolder(), "playerData");
         File regionDataFolder = new File(getDataFolder(), "regionData");
@@ -91,10 +89,6 @@ public final class LandClaiming extends APIHook {
 
     public RegionDataManager getRegionDataManager(){
         return regionDataManager;
-    }
-
-    public PlayersWithRegionsConfig getPlayersWithRegionsConfig(){
-        return playersWithRegionsConfig;
     }
 
     public DefaultRegionFlagsConfig getDefaultRegionFlagsConfig() {

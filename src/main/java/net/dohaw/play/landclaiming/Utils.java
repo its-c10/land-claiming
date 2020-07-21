@@ -20,4 +20,8 @@ public class Utils {
         return files;
     }
 
+    public static String replacePlaceholders(String placeholder, String str, String value){
+        return str.replace(placeholder, value);
+    }
+
 }

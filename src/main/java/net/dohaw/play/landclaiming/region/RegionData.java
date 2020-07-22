@@ -58,6 +58,10 @@ public class RegionData {
         this.flags = flags;
     }
 
+    public void setFlag(RegionFlagType type, boolean b){
+        flags.replace(type, new RegionFlag(b));
+    }
+
     public RegionType getType() {
         return type;
     }

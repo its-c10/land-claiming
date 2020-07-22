@@ -44,18 +44,18 @@ public class LandClaimMenu extends Menu implements Listener {
 
         Player player = (Player) e.getWhoClicked();
         if(customInvHelper.isWithinInventory(inv, e)){
-            if(customInvHelper.isValidClickedItem(e)){
+            if(customInvHelper.isValidClickedItem(e, fillerMat)){
                 if(e.getCurrentItem().getType() != fillerMat){
-                        Menu newMenu;
-                        if(e.getSlot() == 12){
-                            newMenu = new PlayerClaimMenu(plugin);
-                        }else if(e.getSlot() == 14){
-                            return;
-                        }else{
-                            return;
-                        }
-                        newMenu.initializeItems(player);
-                        newMenu.openInventory(player);
+                    Menu newMenu;
+                    if(e.getSlot() == 12){
+                        newMenu = new PlayerClaimMenu(plugin);
+                    }else if(e.getSlot() == 14){
+                        return;
+                    }else{
+                        return;
+                    }
+                    newMenu.initializeItems(player);
+                    newMenu.openInventory(player);
                 }
             }
             e.setCancelled(true);

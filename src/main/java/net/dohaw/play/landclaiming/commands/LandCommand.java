@@ -29,7 +29,6 @@ public class LandCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        Bukkit.broadcastMessage("here");
         if(args.length == 0){
             if(sender instanceof Player){
                 Player player = (Player) sender;

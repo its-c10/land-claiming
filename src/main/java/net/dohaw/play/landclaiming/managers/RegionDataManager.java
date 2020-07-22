@@ -34,6 +34,12 @@ public class RegionDataManager {
         }
     }
 
+    public void setRegionData(RegionData regionData){
+        Chunk chunk = regionData.getChunk();
+        int index = regionDataList.indexOf(getDataFromChunk(chunk));
+        regionDataList.set(index, regionData);
+    }
+
     public List<RegionData> getRegionData(){
         return regionDataList;
     }
@@ -64,6 +70,15 @@ public class RegionDataManager {
     public RegionData getDataFromChunk(Chunk chunk){
         for(RegionData rd : regionDataList){
             if(rd.getChunk().equals(chunk)){
+                return rd;
+            }
+        }
+        return null;
+    }
+
+    public RegionData getDataFromName(String name){
+        for(RegionData rd : regionDataList){
+            if(rd.getName().equalsIgnoreCase(name)){
                 return rd;
             }
         }

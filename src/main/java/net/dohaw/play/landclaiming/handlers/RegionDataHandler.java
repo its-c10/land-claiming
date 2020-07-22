@@ -76,12 +76,7 @@ public class RegionDataHandler {
         newRegionData.setFlags(defaultRegionFlagsConfig.loadDefaultFlags(type));
         newRegionData.setOwnerUUID(ownerUUID);
 
-        try{
-            config.save(regionFile);
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
+        save(newRegionData);
         return newRegionData;
     }
 

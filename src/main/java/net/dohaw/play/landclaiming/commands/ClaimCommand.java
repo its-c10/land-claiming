@@ -78,6 +78,7 @@ public class ClaimCommand implements CommandExecutor {
                             }else{
                                 chatFactory.sendPlayerMessage("There was an error while trying to claim this chunk!", true, player, PREFIX);
                             }
+
                         }else{
                             RegionData rd = regionDataManager.getDataFromLocation(playerLocation);
                             OfflinePlayer regionOwner = Bukkit.getOfflinePlayer(rd.getOwnerUUID());

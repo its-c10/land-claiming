@@ -21,4 +21,11 @@ public class BaseConfig extends ConfigManager {
         return config.getInt("Default Claim Give Amount");
     }
 
+    /*
+        In days
+     */
+    public int getInactivityThreshold(){
+        return config.getInt("Inactivity Threshold");
+    }
+
 }

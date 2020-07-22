@@ -1,3 +1,4 @@
 Prefix: "[&eLand&cClaiming&f]"
 Default Chunk Amount: 3
 Default Claim Give Amount: 3
+Inactivity Threshold: 7

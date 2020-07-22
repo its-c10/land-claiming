@@ -62,6 +62,10 @@ public class RegionData {
         flags.replace(type, new RegionFlag(b));
     }
 
+    public void setType(RegionType type){
+        this.type = type;
+    }
+
     public RegionType getType() {
         return type;
     }

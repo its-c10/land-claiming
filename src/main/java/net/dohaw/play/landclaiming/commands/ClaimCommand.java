@@ -12,9 +12,6 @@ import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import net.dohaw.play.landclaiming.region.RegionData;
 import net.dohaw.play.landclaiming.region.RegionDescription;
 import net.dohaw.play.landclaiming.region.RegionType;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -25,6 +22,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import javax.xml.soap.Text;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,6 +35,7 @@ public class ClaimCommand implements CommandExecutor {
     private MessagesConfig messagesConfig;
     private BaseConfig baseConfig;
     private final String PREFIX;
+
     private final String BUTTON = "[HERE]";
 
     public ClaimCommand(LandClaiming plugin){
@@ -62,22 +61,19 @@ public class ClaimCommand implements CommandExecutor {
                     if(playerDataManager.getNumClaimsAvailable(player.getUniqueId()) > 0){
                         if(!regionDataManager.hasData(playerLocation)){
 
-                            PlayerData playerData = playerDataManager.getData(player.getUniqueId());
-                            playerData.setClaimAmount(playerData.getClaimAmount() - 1);
-                            playerDataManager.setData(player.getUniqueId(), playerData);
-
+                            /*
                             RegionType type = RegionType.NORMAL;
                             Chunk chunk = playerLocation.getChunk();
                             if(player.hasPermission("land.admin")){
                                 type = RegionType.ADMIN;
-                            }
+                            }*/
 
-                            RegionData rd = regionDataManager.create(player.getUniqueId(), chunk, desc, type);
-                            if(rd != null){
-                                sendSuccessMessage(player);
-                            }else{
-                                chatFactory.sendPlayerMessage("There was an error while trying to claim this chunk!", true, player, PREFIX);
-                            }
+                            //if(rd != null){
+                                msg = messagesConfig.getMessage(Message.LAND_CLAIM);
+                                sendConfirmButton(msg, player);
+                            //}else{
+                                //chatFactory.sendPlayerMessage("There was an error while trying to claim this chunk!", true, player, PREFIX);
+                            //}
 
                         }else{
                             RegionData rd = regionDataManager.getDataFromLocation(playerLocation);
@@ -96,41 +92,14 @@ public class ClaimCommand implements CommandExecutor {
         return false;
     }
 
-    private void sendSuccessMessage(Player player){
-
-        int numAvailableClaims = playerDataManager.getNumClaimsAvailable(player.getUniqueId());
-        String msg = messagesConfig.getMessage(Message.LAND_CLAIM_SUCCESS);
-        msg = Utils.replacePlaceholders("%amount%", msg, String.valueOf(numAvailableClaims));
-
-        List<String> arr = Arrays.asList(msg.split(" "));
-        int indexButton = 0;
-        for(String s : arr){
-            if(s.equalsIgnoreCase(BUTTON)){
-                indexButton = arr.indexOf(s);
-            }
-        }
-
-        List<String> firstPartTemp = arr.subList(0, indexButton);
-        String firstPart = String.join(" ", firstPartTemp);
-
-        String button = arr.get(indexButton);
-
-        List<String> restOfSentenceTemp = arr.subList(indexButton + 1, arr.size());
-        String restOfSentence = String.join(" ", restOfSentenceTemp);
-
-        TextComponent tcMsg1 = new TextComponent(chatFactory.colorString(firstPart) + " ");
-        TextComponent tcButton = new TextComponent(chatFactory.colorString(button) + " ");
-        TextComponent tcMsg2 = new TextComponent(chatFactory.colorString(restOfSentence));
-
-        tcButton.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Manager claim").create()));
-        tcButton.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/land " + player.getName()));
-
-        tcMsg1.addExtra(tcButton);
-        tcMsg1.addExtra(tcMsg2);
-
-        player.spigot().sendMessage(tcMsg1);
-
+    private void sendConfirmButton(String msg, Player player){
+        String button1 = "[YES]";
+        String button2 = "[NO]";
+        TextComponent buttonMsg = Utils.createButtonMsg(chatFactory, msg, button1, button2, "/confirmable landclaim yes", "confirmable landclaim no", "Claim Land", "Abort...");
+        player.spigot().sendMessage(buttonMsg);
     }
+
+
 
 
 }

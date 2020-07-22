@@ -2,6 +2,7 @@ package net.dohaw.play.landclaiming;
 
 import me.c10coding.coreapi.APIHook;
 import net.dohaw.play.landclaiming.commands.ClaimCommand;
+import net.dohaw.play.landclaiming.commands.ConfirmableCommands;
 import net.dohaw.play.landclaiming.commands.LandCommand;
 import net.dohaw.play.landclaiming.events.PlayerWatcher;
 import net.dohaw.play.landclaiming.files.BaseConfig;
@@ -9,6 +10,7 @@ import net.dohaw.play.landclaiming.files.DefaultRegionFlagsConfig;
 import net.dohaw.play.landclaiming.files.MessagesConfig;
 import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
+import net.dohaw.play.landclaiming.runnables.ClaimGiver;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -42,6 +44,7 @@ public final class LandClaiming extends APIHook {
 
         registerEvents();
         registerCommands();
+        startRunnables();
 
     }
 
@@ -64,6 +67,11 @@ public final class LandClaiming extends APIHook {
     private void registerCommands(){
         getServer().getPluginCommand("land").setExecutor(new LandCommand(this));
         getServer().getPluginCommand("claim").setExecutor(new ClaimCommand(this));
+        getServer().getPluginCommand("confirmable").setExecutor(new ConfirmableCommands(this));
+    }
+
+    private void startRunnables(){
+        new ClaimGiver(this).runTaskTimer(this, 1200L, 72000L);
     }
 
     private void validateFiles(){

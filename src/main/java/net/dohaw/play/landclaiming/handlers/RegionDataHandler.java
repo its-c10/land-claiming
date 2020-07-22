@@ -107,8 +107,9 @@ public class RegionDataHandler {
         Iterator<Map.Entry<RegionFlagType, RegionFlag>> it = data.getFlags().entrySet().iterator();
 
         while(it.hasNext()){
-            String key = it.next().getKey().name();
-            boolean enabled = it.next().getValue().isEnabled();
+            Map.Entry<RegionFlagType, RegionFlag> entry = it.next();
+            String key = entry.getKey().name();
+            boolean enabled = entry.getValue().isEnabled();
             config.set("Flags." + key, enabled);
         }
 

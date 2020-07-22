@@ -17,4 +17,8 @@ public class BaseConfig extends ConfigManager {
         return config.getInt("Default Chunk Amount");
     }
 
+    public int getDefaultGiveAmount(){
+        return config.getInt("Default Claim Give Amount");
+    }
+
 }

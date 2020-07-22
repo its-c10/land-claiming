@@ -21,6 +21,8 @@ commands:
     description: "Makes an admin claim"
   adminunclaim:
     description: "Un-claims an admin claim"
+  confirmable:
+    description: "Confirmable commands"
 
 permissions:
   land.guiaccess:

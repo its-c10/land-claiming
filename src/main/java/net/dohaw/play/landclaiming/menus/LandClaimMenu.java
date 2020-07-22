@@ -5,6 +5,7 @@ import me.c10coding.coreapi.chat.ChatFactory;
 import me.c10coding.coreapi.menus.Menu;
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
+import net.dohaw.play.landclaiming.region.RegionType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -48,9 +49,14 @@ public class LandClaimMenu extends Menu implements Listener {
                 if(e.getCurrentItem().getType() != fillerMat){
                     Menu newMenu;
                     if(e.getSlot() == 12){
-                        newMenu = new PlayerClaimMenu(plugin);
+                        newMenu = new DescriptionMenu(plugin, "Players Claim Types", RegionType.NORMAL);
                     }else if(e.getSlot() == 14){
-                        return;
+                        if(!player.hasPermission("land.admin")){
+                            player.closeInventory();
+                            chatFactory.sendPlayerMessage("You don't have permission to do that!", true, player, PREFIX);
+                            return;
+                        }
+                        newMenu = new DescriptionMenu(plugin, "Admin Claim Types", RegionType.ADMIN);
                     }else{
                         return;
                     }

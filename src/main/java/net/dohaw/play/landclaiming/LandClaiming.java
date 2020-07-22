@@ -1,6 +1,7 @@
 package net.dohaw.play.landclaiming;
 
 import me.c10coding.coreapi.APIHook;
+import net.dohaw.play.landclaiming.commands.AutoClaimCommand;
 import net.dohaw.play.landclaiming.commands.ClaimCommand;
 import net.dohaw.play.landclaiming.commands.ConfirmableCommands;
 import net.dohaw.play.landclaiming.commands.LandCommand;
@@ -69,6 +70,7 @@ public final class LandClaiming extends APIHook {
         getServer().getPluginCommand("land").setExecutor(new LandCommand(this));
         getServer().getPluginCommand("claim").setExecutor(new ClaimCommand(this));
         getServer().getPluginCommand("confirmable").setExecutor(new ConfirmableCommands(this));
+        getServer().getPluginCommand("autoclaim").setExecutor(new AutoClaimCommand(this));
     }
 
     private void startRunnables(){
@@ -77,8 +79,8 @@ public final class LandClaiming extends APIHook {
     }
 
     private void validateFiles(){
-        File[] files = {new File(getDataFolder(), "config.yml"), new File(getDataFolder(), "messages.yml"), new File(getDataFolder(), "defaultRegionFlags.yml")};
 
+        File[] files = {new File(getDataFolder(), "config.yml"), new File(getDataFolder(), "messages.yml"), new File(getDataFolder(), "defaultRegionFlags.yml")};
         File playerDataFolder = new File(getDataFolder(), "playerData");
         File regionDataFolder = new File(getDataFolder(), "regionData");
 

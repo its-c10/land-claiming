@@ -12,7 +12,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class ClaimGiver extends BukkitRunnable {
 
-    private LandClaiming plugin;
     private PlayerDataManager playerDataManager;
     private int defaultGiveAmount;
     private ChatFactory chatFactory;
@@ -22,7 +21,6 @@ public class ClaimGiver extends BukkitRunnable {
     private final String PREFIX;
 
     public ClaimGiver(LandClaiming plugin){
-        this.plugin = plugin;
         this.playerDataManager = plugin.getPlayerDataManager();
         this.defaultGiveAmount = plugin.getBaseConfig().getDefaultGiveAmount();
         this.chatFactory = plugin.getAPI().getChatFactory();

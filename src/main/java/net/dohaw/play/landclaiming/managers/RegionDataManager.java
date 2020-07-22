@@ -58,12 +58,28 @@ public class RegionDataManager {
         return hasData(location.getChunk());
     }
 
+    public boolean hasDuplicateChunk(RegionData data){
+        return hasDuplicateChunk(data.getChunk());
+    }
+
+    public boolean hasDuplicateChunk(Chunk chunk){
+        for(RegionData rd : regionDataList){
+            if(rd.getChunk() == chunk){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public RegionData create(UUID owner, Chunk chunk, RegionDescription desc, RegionType type){
+
+        if(hasDuplicateChunk(chunk)) return null;
+
         RegionData regionData = regionDataHandler.create(owner, chunk, desc, type);
+
         regionDataList.add(regionData);
         return regionData;
     }
-
     public RegionData getDataFromLocation(Location loc){
         return getDataFromChunk(loc.getChunk());
     }

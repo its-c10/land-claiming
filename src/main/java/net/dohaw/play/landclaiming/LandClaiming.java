@@ -11,6 +11,7 @@ import net.dohaw.play.landclaiming.files.MessagesConfig;
 import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import net.dohaw.play.landclaiming.runnables.ClaimGiver;
+import net.dohaw.play.landclaiming.runnables.DataSaver;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -71,7 +72,8 @@ public final class LandClaiming extends APIHook {
     }
 
     private void startRunnables(){
-        new ClaimGiver(this).runTaskTimer(this, 1200L, 72000L);
+        new ClaimGiver(this).runTaskTimer(this, 72000L, 72000L);
+        new DataSaver(this).runTaskTimer(this, 18000L, 18000L);
     }
 
     private void validateFiles(){

@@ -33,10 +33,12 @@ public class ClaimGiver extends BukkitRunnable {
     @Override
     public void run() {
         for(Player player : Bukkit.getOnlinePlayers()){
-            int giveAmount = getGiveAmount(player);
             PlayerData data = playerDataManager.getData(player.getUniqueId());
-            data.setClaimAmount(data.getClaimAmount() + giveAmount);
-            chatFactory.sendPlayerMessage("You have been given &e" + giveAmount + "&f claims!", true, player, PREFIX);
+            int giveAmount = getGiveAmount(player);
+            int currentPlayerClaimAmount = data.getClaimAmount();
+            data.setClaimAmount(currentPlayerClaimAmount + giveAmount);
+            playerDataManager.setData(player.getUniqueId(), data);
+            chatFactory.sendPlayerMessage("You have been given &e" + giveAmount + "&f claims. You now have &e" + currentPlayerClaimAmount + " &fclaims!", true, player, PREFIX);
         }
     }
 

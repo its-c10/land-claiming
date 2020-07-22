@@ -70,7 +70,7 @@ public class ClaimCommand implements CommandExecutor {
 
                             //if(rd != null){
                                 msg = messagesConfig.getMessage(Message.LAND_CLAIM);
-                                sendConfirmButton(msg, player);
+                                sendConfirmButton(msg, player, desc);
                             //}else{
                                 //chatFactory.sendPlayerMessage("There was an error while trying to claim this chunk!", true, player, PREFIX);
                             //}
@@ -92,10 +92,10 @@ public class ClaimCommand implements CommandExecutor {
         return false;
     }
 
-    private void sendConfirmButton(String msg, Player player){
+    private void sendConfirmButton(String msg, Player player, RegionDescription desc){
         String button1 = "[YES]";
         String button2 = "[NO]";
-        TextComponent buttonMsg = Utils.createButtonMsg(chatFactory, msg, button1, button2, "/confirmable landclaim yes", "confirmable landclaim no", "Claim Land", "Abort...");
+        TextComponent buttonMsg = Utils.createButtonMsg(chatFactory, msg, button1, button2, "/confirmable landclaim yes " + player.getUniqueId() + " " + desc.name(), "/confirmable landclaim no", "Claim Land", "Abort...");
         player.spigot().sendMessage(buttonMsg);
     }
 

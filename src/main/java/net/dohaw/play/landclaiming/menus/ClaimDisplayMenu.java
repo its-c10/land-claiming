@@ -1,6 +1,7 @@
 package net.dohaw.play.landclaiming.menus;
 
 import me.c10coding.coreapi.APIHook;
+import me.c10coding.coreapi.helpers.ItemStackHelper;
 import me.c10coding.coreapi.menus.Menu;
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
@@ -8,6 +9,7 @@ import net.dohaw.play.landclaiming.region.RegionData;
 import net.dohaw.play.landclaiming.region.RegionDescription;
 import net.dohaw.play.landclaiming.region.RegionType;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,6 +24,7 @@ import java.util.List;
 public class ClaimDisplayMenu extends Menu implements Listener {
 
     private RegionDataManager regionDataManager;
+    private ItemStackHelper itemStackHelper;
     private RegionDescription desc;
     private List<RegionData> data;
     private List<RegionData> thisPageData = new ArrayList<>();
@@ -42,6 +45,7 @@ public class ClaimDisplayMenu extends Menu implements Listener {
         this.page = page;
         this.menuTitle = menuTitle;
         this.typeOfMenu = typeOfMenu;
+        this.itemStackHelper = plugin.getAPI().getItemStackHelper();
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
@@ -83,7 +87,40 @@ public class ClaimDisplayMenu extends Menu implements Listener {
                 }
 
                 lore = chatFactory.colorLore(lore);
+
                 inv.addItem(createGuiItem(ITEM_MAT, displayName, lore));
+                /*
+                    If the player is sitting in their own claim, then set the item to their player head and make it glow.
+                 */
+                Chunk playerChunk = player.getLocation().getChunk();
+                Chunk dataChunk = data.getChunk();
+
+                if(dataChunk.equals(playerChunk)){
+
+                    ItemStack item = inv.getItem(x);
+                    ItemMeta itemMeta = item.getItemMeta();
+                    ItemStack playerHead = itemStackHelper.getHead(player, Material.LEGACY_SKULL_ITEM);
+                    ItemMeta playerHeadMeta = playerHead.getItemMeta();
+
+                    playerHeadMeta.setDisplayName(itemMeta.getDisplayName());
+                    playerHeadMeta.setLore(itemMeta.getLore());
+                    playerHead.setItemMeta(playerHeadMeta);
+
+                    ItemStack itemGlowed = itemStackHelper.addGlowToItem(playerHead);
+
+                    ItemMeta glowingItemMeta = itemGlowed.getItemMeta();
+                    List<String> glowingItemLore = glowingItemMeta.getLore();
+
+                    glowingItemLore.add("  ");
+                    glowingItemLore.add(chatFactory.colorString("&b&lCurrent Claim"));
+
+                    glowingItemMeta.setLore(glowingItemLore);
+                    itemGlowed.setItemMeta(glowingItemMeta);
+
+                    inv.setItem(x, itemGlowed);
+                }
+
+
             }
         }
 

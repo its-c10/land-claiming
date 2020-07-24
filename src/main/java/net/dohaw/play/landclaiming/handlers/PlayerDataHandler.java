@@ -47,6 +47,7 @@ public class PlayerDataHandler {
 
         int defaultChunkAmount = baseConfig.getDefaultChunkAmount();
         config.set("Claim Amount", defaultChunkAmount);
+        config.set("Last Time Played", System.currentTimeMillis());
 
         playerData.setConfig(config);
         playerData.setClaimAmount(defaultChunkAmount);
@@ -67,6 +68,7 @@ public class PlayerDataHandler {
         FileConfiguration config = data.getConfig();
 
         config.set("Claim Amount", data.getClaimAmount());
+        config.set("Last Time Played", System.currentTimeMillis());
 
         try {
             config.save(playerDataFile);

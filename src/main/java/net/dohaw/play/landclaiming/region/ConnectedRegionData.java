@@ -14,6 +14,7 @@ public class ConnectedRegionData extends RegionData{
         this.connectedData = connectedData;
         this.type = type;
         this.desc = desc;
+        this.ownerUUID = ownerUUID;
     }
 
     public List<SingleRegionData> getConnectedData(){
@@ -26,6 +27,10 @@ public class ConnectedRegionData extends RegionData{
             chunks.add(srd.getChunk());
         }
         return chunks;
+    }
+
+    public void addData(SingleRegionData singleRegionData){
+        connectedData.add(singleRegionData);
     }
 
     public static ConnectedRegionData join(List<ConnectedRegionData> crdList){

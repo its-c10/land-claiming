@@ -57,11 +57,16 @@ public class RegionDataHandler {
 
     public SingleRegionData create(UUID ownerUUID, Chunk chunk, RegionDescription desc, RegionType type){
 
-        String regionName = getRegionName(ownerUUID);
+        int num = 1;
+        String regionName = getRegionName(ownerUUID, num);
         File regionFile = new File(plugin.getDataFolder() + "/regionData", regionName + ".yml");
 
         try{
-            regionFile.createNewFile();
+            while(!regionFile.createNewFile()){
+                num++;
+                regionName = getRegionName(ownerUUID, num);
+                regionFile = new File(plugin.getDataFolder() + "/regionData", regionName + ".yml");
+            }
         }catch(IOException e){
             plugin.getLogger().severe("Could not create the region file " + regionFile.getName());
             e.printStackTrace();
@@ -80,12 +85,9 @@ public class RegionDataHandler {
         return newSingleRegionData;
     }
 
-    private String getRegionName(UUID ownerUUID){
-        RegionDataManager regionDataManager = plugin.getRegionDataManager();
-        Bukkit.broadcastMessage(regionDataManager.getPlayerRegionData(ownerUUID).toString());
-        int playerNumRegions = regionDataManager.getPlayerRegionData(ownerUUID).size();
+    private String getRegionName(UUID ownerUUID, int num){
         String playerName = Bukkit.getPlayer(ownerUUID).getName();
-        return playerName + "_" + (playerNumRegions + 1);
+        return playerName + "_" + (num);
     }
 
     public void save(SingleRegionData data){

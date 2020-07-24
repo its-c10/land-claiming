@@ -44,11 +44,11 @@ public class InactivityTracker extends BukkitRunnable {
                 long difference = currentTimeMillis - timeInMillis;
                 int daysOffline = (int) (difference / (1000*60*60*24));
 
-                int inactivityThresholdInDays = baseConfig.getInactivityThreshold();
-
+               // int inactivityThresholdInDays = baseConfig.get;
+                /*
                 if(inactivityThresholdInDays <= daysOffline){
 
-                }
+                }*/
 
             }
         }

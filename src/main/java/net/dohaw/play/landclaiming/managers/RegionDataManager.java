@@ -48,6 +48,7 @@ public class RegionDataManager {
             }
         }
 
+        Bukkit.broadcastMessage(regionData.toString());
         this.regionDataList = regionData;
     }
 
@@ -175,6 +176,13 @@ public class RegionDataManager {
         regionDataList.set(index, singleRegionData);
     }
 
+    public void setRegionData(ConnectedRegionData connectedRegionData){
+        SingleRegionData srd = connectedRegionData.getConnectedData().get(0);
+        ConnectedRegionData crdReplacing = getConnectedRegion(srd.getChunk());
+        int index = regionDataList.indexOf(crdReplacing);
+        regionDataList.set(index, srd);
+    }
+
     public List<RegionData> getRegionData(){
         return regionDataList;
     }
@@ -226,9 +234,37 @@ public class RegionDataManager {
         return hasData(location.getChunk());
     }
 
+    public boolean doConnect(SingleRegionData srd1, SingleRegionData srd2){
+        if(srd1.getType() == srd2.getType()){
+            return srd1.getDescription() == srd2.getDescription();
+        }
+        return false;
+    }
+
+    public boolean doConnect(SingleRegionData srd1, Chunk chunk){
+        if(hasData(chunk)){
+            SingleRegionData data = getDataFromChunk(chunk);
+            return doConnect(srd1, data);
+        }
+        return false;
+    }
+
+    private boolean hasConnectingData(SingleRegionData srd){
+
+        Chunk srdChunk = srd.getChunk();
+
+        Chunk leftChunk = getLeftChunk(srdChunk);
+        Chunk rightChunk = getRightChunk(srdChunk);
+        Chunk forwardChunk = getForwardChunk(srdChunk);
+        Chunk backChunk = getBackwardsChunk(srdChunk);
+
+        return doConnect(srd, leftChunk) || doConnect(srd, rightChunk) || doConnect(srd, forwardChunk) || doConnect(srd, backChunk);
+
+    }
+
     public SingleRegionData create(UUID owner, Chunk chunk, RegionDescription desc, RegionType type){
         SingleRegionData singleRegionData = regionDataHandler.create(owner, chunk, desc, type);
-        regionDataList.add(singleRegionData);
+        loadData();
         return singleRegionData;
     }
     
@@ -239,6 +275,21 @@ public class RegionDataManager {
     
     public SingleRegionData getDataFromLocation(Location loc){
         return getDataFromChunk(loc.getChunk());
+    }
+
+    public ConnectedRegionData getConnectedRegion(Chunk chunk){
+        for(RegionData rd : regionDataList) {
+            if (rd instanceof ConnectedRegionData) {
+                ConnectedRegionData crd = (ConnectedRegionData) rd;
+                List<SingleRegionData> srdList = crd.getConnectedData();
+                for (SingleRegionData srd : srdList) {
+                    if (srd.getChunk().equals(chunk)) {
+                        return (ConnectedRegionData) rd;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public SingleRegionData getDataFromChunk(Chunk chunk){
@@ -284,12 +335,25 @@ public class RegionDataManager {
     public List<RegionData> getPlayerRegionData(UUID uuid){
         List<RegionData> playerRegionData = new ArrayList<>();
         for(RegionData rd : regionDataList){
-            Bukkit.broadcastMessage(rd.toString());
             if(rd.getOwnerUUID().equals(uuid)){
                 playerRegionData.add(rd);
             }
         }
         return playerRegionData;
+    }
+
+    public int getPlayerNumRegions(UUID uuid){
+        int num = 0;
+        for(RegionData rd : regionDataList){
+            if(rd.getOwnerUUID().equals(uuid)){
+                if(rd instanceof ConnectedRegionData){
+                    num += ((ConnectedRegionData)rd).getConnectedData().size();
+                }else{
+                    num++;
+                }
+            }
+        }
+        return num;
     }
 
     public List<RegionData> getPlayerRegionDataByDescription(UUID uuid, RegionDescription desc, RegionType type){

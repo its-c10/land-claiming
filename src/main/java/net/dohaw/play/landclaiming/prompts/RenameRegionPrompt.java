@@ -2,7 +2,7 @@ package net.dohaw.play.landclaiming.prompts;
 
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
-import net.dohaw.play.landclaiming.region.RegionData;
+import net.dohaw.play.landclaiming.region.SingleRegionData;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class RenameRegionPrompt extends StringPrompt {
 
     private LandClaiming plugin;
-    private RegionData regionData;
+    private SingleRegionData singleRegionData;
     private String regionName;
     private RegionDataManager regionDataManager;
 
@@ -36,7 +36,7 @@ public class RenameRegionPrompt extends StringPrompt {
         }
 
         if(Pattern.matches("([A-Za-z0-9\\_\\s]+)", input)){
-            RegionData data = regionDataManager.getDataFromName(regionName);
+            SingleRegionData data = regionDataManager.getDataFromName(regionName);
             data.setName(input);
             regionDataManager.setRegionData(data);
             context.getForWhom().sendRawMessage("You have renamed your region to " + input + "!");

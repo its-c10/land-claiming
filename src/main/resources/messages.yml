@@ -1,4 +1,6 @@
 Land Claim: "Do you want to claim this chunk? [YES] or [NO]"
+Land Unclaim: "Do you want to unclaim this chunk? [YES] or [NO]"
+Land Unclaim Success: "You unclaimed a chunk. You have %amount% remaining"
 Land Claim Success: "You claimed a chunk. You have %amount% remaining. To manage this chunk, click [HERE] or type /land."
 Land Claim Fail: "Couldn't claim this chunk! You don't have any chunks available. Play more to earn chunks, or buy more in your land menu"
 Land Claim No: "These messages will be stopped until you log-out or claim a chunk with /claim."

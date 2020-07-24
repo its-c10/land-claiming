@@ -2,6 +2,8 @@ package net.dohaw.play.landclaiming.commands;
 
 import me.c10coding.coreapi.chat.ChatFactory;
 import net.dohaw.play.landclaiming.LandClaiming;
+import net.dohaw.play.landclaiming.region.RegionDescription;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,13 +37,17 @@ public class AutoClaimCommand implements CommandExecutor {
 
         if(sender instanceof Player){
             Player player = (Player) sender;
-            if(args.length == 0){
-                if(player.hasMetadata("auto claim")){
-                    player.removeMetadata("auto claim", plugin);
-                    chatFactory.sendPlayerMessage("You have &cdisabled &fauto claiming!", true, player, plugin.getBaseConfig().getPluginPrefix());
-                }else{
-                    player.setMetadata("auto claim", new FixedMetadataValue(plugin, true));
-                    chatFactory.sendPlayerMessage("You have &aenabled &fauto claiming!", true, player, plugin.getBaseConfig().getPluginPrefix());
+            if(args.length == 1){
+                String descStr = args[0];
+                if(RegionDescription.getByAlias(descStr) != null){
+                    RegionDescription desc = RegionDescription.getByAlias(descStr);
+                    if(player.hasMetadata("auto claim")){
+                        player.removeMetadata("auto claim", plugin);
+                        chatFactory.sendPlayerMessage("You have &cdisabled &fauto claiming!", true, player, plugin.getBaseConfig().getPluginPrefix());
+                    }else{
+                        player.setMetadata("auto claim", new FixedMetadataValue(plugin, desc.name()));
+                        chatFactory.sendPlayerMessage("You have &aenabled &fauto claiming! These claims will be " + StringUtils.capitalize(desc.toString()) + " claims!", true, player, plugin.getBaseConfig().getPluginPrefix());
+                    }
                 }
             }
         }

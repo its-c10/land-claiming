@@ -6,6 +6,7 @@ import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import net.dohaw.play.landclaiming.region.RegionData;
+import net.dohaw.play.landclaiming.region.SingleRegionData;
 import net.dohaw.play.landclaiming.region.RegionDescription;
 import net.dohaw.play.landclaiming.region.RegionType;
 import org.bukkit.Bukkit;

@@ -25,7 +25,7 @@ public class RegionFlagMenu extends Menu implements Listener {
 
     private RegionDataManager regionDataManager;
     private String regionName;
-    private RegionData data;
+    private SingleRegionData data;
     private RegionDescription desc;
     private RegionType type;
 

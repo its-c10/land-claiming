@@ -3,6 +3,8 @@ package net.dohaw.play.landclaiming;
 public enum Message {
 
     LAND_CLAIM("Land Claim"),
+    LAND_UNCLAIM("Land Unclaim"),
+    LAND_UNCLAIM_SUCCESS("Land Unclaim Success"),
     LAND_CLAIM_SUCCESS("Land Claim Success"),
     LAND_CLAIM_FAIL("Land Claim Fail"),
     LAND_CLAIM_NO("Land Claim No"),

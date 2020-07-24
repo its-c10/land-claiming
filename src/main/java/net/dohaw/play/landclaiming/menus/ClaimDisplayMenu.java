@@ -5,9 +5,7 @@ import me.c10coding.coreapi.helpers.ItemStackHelper;
 import me.c10coding.coreapi.menus.Menu;
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
-import net.dohaw.play.landclaiming.region.RegionData;
-import net.dohaw.play.landclaiming.region.RegionDescription;
-import net.dohaw.play.landclaiming.region.RegionType;
+import net.dohaw.play.landclaiming.region.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -79,7 +77,14 @@ public class ClaimDisplayMenu extends Menu implements Listener {
                 }
 
                 lore.add("&b&o" + typeStr + " Claim");
-                lore.add("&eLocation: &cX: " + data.getChunk().getX() + " | Z: " + data.getChunk().getZ());
+                if(data instanceof ConnectedRegionData){
+                    ConnectedRegionData crd = (ConnectedRegionData) data;
+                    lore.add("&eLocation: &cX: " + crd.getChunks().get(0).getX() + " | Z: " + crd.getChunks().get(0).getZ());
+                }else{
+                    SingleRegionData srd = (SingleRegionData)data;
+                    lore.add("&eLocation: &cX: " + srd.getChunk().getX() + " | Z: " + srd.getChunk().getZ());
+                }
+
                 if(desc == null){
                     String desc = chatFactory.firstUpperRestLower(data.getDescription().name());
                     desc = desc.replace("_", " ");
@@ -93,9 +98,9 @@ public class ClaimDisplayMenu extends Menu implements Listener {
                     If the player is sitting in their own claim, then set the item to their player head and make it glow.
                  */
                 Chunk playerChunk = player.getLocation().getChunk();
-                Chunk dataChunk = data.getChunk();
+                boolean isInChunk = data instanceof ConnectedRegionData ? ((ConnectedRegionData)data).getChunks().contains(player) : ((SingleRegionData) data).getChunk().equals(playerChunk);
 
-                if(dataChunk.equals(playerChunk)){
+                if(isInChunk){
 
                     ItemStack item = inv.getItem(x);
                     ItemMeta itemMeta = item.getItemMeta();
@@ -119,7 +124,6 @@ public class ClaimDisplayMenu extends Menu implements Listener {
 
                     inv.setItem(x, itemGlowed);
                 }
-
 
             }
         }

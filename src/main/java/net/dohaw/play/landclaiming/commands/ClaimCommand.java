@@ -3,28 +3,21 @@ package net.dohaw.play.landclaiming.commands;
 import me.c10coding.coreapi.chat.ChatFactory;
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.Message;
-import net.dohaw.play.landclaiming.PlayerData;
 import net.dohaw.play.landclaiming.Utils;
 import net.dohaw.play.landclaiming.files.BaseConfig;
 import net.dohaw.play.landclaiming.files.MessagesConfig;
 import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
-import net.dohaw.play.landclaiming.region.RegionData;
+import net.dohaw.play.landclaiming.region.SingleRegionData;
 import net.dohaw.play.landclaiming.region.RegionDescription;
-import net.dohaw.play.landclaiming.region.RegionType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import javax.xml.soap.Text;
-import java.util.Arrays;
-import java.util.List;
 
 public class ClaimCommand implements CommandExecutor {
 
@@ -76,7 +69,7 @@ public class ClaimCommand implements CommandExecutor {
                             //}
 
                         }else{
-                            RegionData rd = regionDataManager.getDataFromLocation(playerLocation);
+                            SingleRegionData rd = regionDataManager.getDataFromLocation(playerLocation);
                             OfflinePlayer regionOwner = Bukkit.getOfflinePlayer(rd.getOwnerUUID());
                             chatFactory.sendPlayerMessage("This chunk has already been claimed by &e&l" + regionOwner.getName() + "!", true, sender, PREFIX);
                         }

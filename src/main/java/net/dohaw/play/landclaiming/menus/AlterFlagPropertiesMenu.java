@@ -4,7 +4,7 @@ import me.c10coding.coreapi.APIHook;
 import me.c10coding.coreapi.menus.Menu;
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
-import net.dohaw.play.landclaiming.region.RegionData;
+import net.dohaw.play.landclaiming.region.SingleRegionData;
 import net.dohaw.play.landclaiming.region.RegionDescription;
 import net.dohaw.play.landclaiming.region.RegionFlag;
 import net.dohaw.play.landclaiming.region.RegionFlagType;
@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public class AlterFlagPropertiesMenu extends Menu implements Listener {
 
-    private RegionData data;
+    private SingleRegionData data;
     private RegionDataManager regionDataManager;
     private RegionFlag flag;
     private RegionFlagType fType;

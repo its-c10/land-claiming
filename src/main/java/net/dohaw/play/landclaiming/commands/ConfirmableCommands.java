@@ -8,18 +8,15 @@ import net.dohaw.play.landclaiming.Utils;
 import net.dohaw.play.landclaiming.files.MessagesConfig;
 import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
-import net.dohaw.play.landclaiming.region.RegionData;
+import net.dohaw.play.landclaiming.region.SingleRegionData;
 import net.dohaw.play.landclaiming.region.RegionDescription;
 import net.dohaw.play.landclaiming.region.RegionType;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.security.IdentityScope;
-import java.util.UUID;
+import org.bukkit.metadata.FixedMetadataValue;
 
 public class ConfirmableCommands implements CommandExecutor {
 
@@ -51,10 +48,9 @@ public class ConfirmableCommands implements CommandExecutor {
 
                 String decision = args[1];
                 String descStr = args[3];
-
                 RegionDescription desc = RegionDescription.valueOf(descStr);
-                if(decision.equalsIgnoreCase("yes")){
 
+                if(decision.equalsIgnoreCase("yes")){
                     RegionType type = RegionType.NORMAL;
                     Chunk chunk = player.getLocation().getChunk();
 
@@ -62,20 +58,33 @@ public class ConfirmableCommands implements CommandExecutor {
                         type = RegionType.ADMIN;
                     }
 
-                    RegionData rd = regionDataManager.create(player.getUniqueId(), chunk, desc, type);
-                    /*
-                        Duplicate chunk or other error while creating it
-                     */
+                    SingleRegionData rd = regionDataManager.create(player.getUniqueId(), chunk, desc, type);
+
                     if(rd != null){
-                        sendClaimSuccessMessage(player, rd);
                         reduceClaimAmount(player);
+                        sendClaimSuccessMessage(player, rd);
                     }else{
                         chatFactory.sendPlayerMessage("There was an error while trying to claim this chunk!", true, player, PREFIX);
                     }
                 }
 
             }else if(args[0].equalsIgnoreCase("landclaim") && args.length == 2){
-                chatFactory.sendPlayerMessage("Aborting...", true, player, PREFIX);
+                String msg = messagesConfig.getMessage(Message.LAND_CLAIM_NO);
+                chatFactory.sendPlayerMessage(msg, true, player, PREFIX);
+                player.setMetadata("shut up", new FixedMetadataValue(plugin, true));
+            }else if(args[0].equalsIgnoreCase("unclaim") && args.length == 4){
+
+                String decision = args[1];
+                String regionName = args[3];
+
+                if(decision.equalsIgnoreCase("yes")){
+                    if(regionDataManager.getDataFromName(regionName) != null){
+
+                    }
+                }
+
+            }else if(args[0].equalsIgnoreCase("unclaim") && args.length == 2){
+
             }
 
         }
@@ -83,11 +92,11 @@ public class ConfirmableCommands implements CommandExecutor {
         return false;
     }
 
-    private void sendClaimSuccessMessage(Player player, RegionData regionData){
+    private void sendClaimSuccessMessage(Player player, SingleRegionData singleRegionData){
         int numAvailableClaims = playerDataManager.getNumClaimsAvailable(player.getUniqueId());
         String msg = messagesConfig.getMessage(Message.LAND_CLAIM_SUCCESS);
         msg = Utils.replacePlaceholders("%amount%", msg, String.valueOf(numAvailableClaims));
-        player.spigot().sendMessage(Utils.createButtonMsg(chatFactory, msg, BUTTON, "/land " + regionData.getName(), "Manager Claim"));
+        player.spigot().sendMessage(Utils.createButtonMsg(chatFactory, msg, BUTTON, "/land " + singleRegionData.getName(), "Manager Claim"));
     }
 
     private void reduceClaimAmount(Player player){

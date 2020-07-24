@@ -1,3 +1,5 @@
 Prefix: "[&eLand&cClaiming&f]"
 Default Chunk Amount: 3
 Default Claim Give Amount: 3
+
+Claim Block Place Amount: 8

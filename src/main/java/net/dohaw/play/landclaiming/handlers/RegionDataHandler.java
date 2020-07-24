@@ -26,9 +26,9 @@ public class RegionDataHandler {
         this.defaultRegionFlagsConfig = plugin.getDefaultRegionFlagsConfig();
     }
 
-    public List<RegionData> load(){
+    public List<SingleRegionData> load(){
 
-        List<RegionData> regionDataList = new ArrayList<>();
+        List<SingleRegionData> singleRegionDataList = new ArrayList<>();
         List<File> regionConfigs = Utils.getFilesInConfig(new File(plugin.getDataFolder(), "regionData"));
 
         for(File file : regionConfigs){
@@ -43,19 +43,19 @@ public class RegionDataHandler {
             Location regionLocation = ls.toLocationFromPath("Location");
             Chunk chunk = regionLocation.getChunk();
 
-            RegionData regionData = new RegionData(regionName, chunk, desc, type);
+            SingleRegionData singleRegionData = new SingleRegionData(regionName, chunk, desc, type);
 
-            regionData.setFile(file);
-            regionData.setConfig(config);
-            regionData.setFlags(loadFlags(config));
-            regionData.setOwnerUUID(ownerUUID);
+            singleRegionData.setFile(file);
+            singleRegionData.setConfig(config);
+            singleRegionData.setFlags(loadFlags(config));
+            singleRegionData.setOwnerUUID(ownerUUID);
 
-            regionDataList.add(regionData);
+            singleRegionDataList.add(singleRegionData);
         }
-        return regionDataList;
+        return singleRegionDataList;
     }
 
-    public RegionData create(UUID ownerUUID, Chunk chunk, RegionDescription desc, RegionType type){
+    public SingleRegionData create(UUID ownerUUID, Chunk chunk, RegionDescription desc, RegionType type){
 
         String regionName = getRegionName(ownerUUID);
         File regionFile = new File(plugin.getDataFolder() + "/regionData", regionName + ".yml");
@@ -69,25 +69,26 @@ public class RegionDataHandler {
         }
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(regionFile);
-        RegionData newRegionData = new RegionData(regionName, chunk, desc, type);
+        SingleRegionData newSingleRegionData = new SingleRegionData(regionName, chunk, desc, type);
 
-        newRegionData.setFile(regionFile);
-        newRegionData.setConfig(config);
-        newRegionData.setFlags(defaultRegionFlagsConfig.loadDefaultFlags(type));
-        newRegionData.setOwnerUUID(ownerUUID);
+        newSingleRegionData.setFile(regionFile);
+        newSingleRegionData.setConfig(config);
+        newSingleRegionData.setFlags(defaultRegionFlagsConfig.loadDefaultFlags(type));
+        newSingleRegionData.setOwnerUUID(ownerUUID);
 
-        save(newRegionData);
-        return newRegionData;
+        save(newSingleRegionData);
+        return newSingleRegionData;
     }
 
     private String getRegionName(UUID ownerUUID){
         RegionDataManager regionDataManager = plugin.getRegionDataManager();
+        Bukkit.broadcastMessage(regionDataManager.getPlayerRegionData(ownerUUID).toString());
         int playerNumRegions = regionDataManager.getPlayerRegionData(ownerUUID).size();
         String playerName = Bukkit.getPlayer(ownerUUID).getName();
         return playerName + "_" + (playerNumRegions + 1);
     }
 
-    public void save(RegionData data){
+    public void save(SingleRegionData data){
 
         File file = data.getFile();
         FileConfiguration config = data.getConfig();
@@ -119,6 +120,11 @@ public class RegionDataHandler {
             e.printStackTrace();
         }
 
+    }
+
+    public void delete(SingleRegionData data){
+        File file = data.getFile();
+        file.delete();
     }
 
     private EnumMap<RegionFlagType, RegionFlag> loadFlags(FileConfiguration config){

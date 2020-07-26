@@ -25,4 +25,8 @@ public class BaseConfig extends ConfigManager {
         return config.getInt("Claim Block Place Amount");
     }
 
+    public int getPricePerClaim(){
+        return config.getInt("Price Per Claim");
+    }
+
 }

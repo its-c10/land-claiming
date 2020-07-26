@@ -1,10 +1,8 @@
 package net.dohaw.play.landclaiming;
 
 import me.c10coding.coreapi.APIHook;
-import net.dohaw.play.landclaiming.commands.AutoClaimCommand;
-import net.dohaw.play.landclaiming.commands.ClaimCommand;
-import net.dohaw.play.landclaiming.commands.ConfirmableCommands;
-import net.dohaw.play.landclaiming.commands.LandCommand;
+import net.dohaw.play.landclaiming.commands.*;
+import net.dohaw.play.landclaiming.events.FlagWatcher;
 import net.dohaw.play.landclaiming.events.PlayerWatcher;
 import net.dohaw.play.landclaiming.files.BaseConfig;
 import net.dohaw.play.landclaiming.files.DefaultRegionFlagsConfig;
@@ -13,13 +11,16 @@ import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import net.dohaw.play.landclaiming.runnables.ClaimGiver;
 import net.dohaw.play.landclaiming.runnables.DataSaver;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.io.File;
 
 public final class LandClaiming extends APIHook {
 
+    private static Economy econ = null;
     private PlayerDataManager playerDataManager;
     private RegionDataManager regionDataManager;
     private DefaultRegionFlagsConfig defaultRegionFlagsConfig;
@@ -30,6 +31,12 @@ public final class LandClaiming extends APIHook {
     public void onEnable() {
 
         hookAPI(this);
+
+        if (!setupEconomy() ) {
+            getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         validateFiles();
 
         this.baseConfig = new BaseConfig(this);
@@ -64,6 +71,7 @@ public final class LandClaiming extends APIHook {
 
     private void registerEvents(){
         Bukkit.getPluginManager().registerEvents(new PlayerWatcher(this), this);
+        Bukkit.getPluginManager().registerEvents(new FlagWatcher(this), this);
     }
 
     private void registerCommands(){
@@ -71,6 +79,8 @@ public final class LandClaiming extends APIHook {
         getServer().getPluginCommand("claim").setExecutor(new ClaimCommand(this));
         getServer().getPluginCommand("confirmable").setExecutor(new ConfirmableCommands(this));
         getServer().getPluginCommand("autoclaim").setExecutor(new AutoClaimCommand(this));
+        getServer().getPluginCommand("unclaim").setExecutor(new UnclaimCommand(this));
+        getServer().getPluginCommand("trust").setExecutor(new TrustCommand(this));
     }
 
     private void startRunnables(){
@@ -100,6 +110,18 @@ public final class LandClaiming extends APIHook {
         getLogger().info("Validated files!");
     }
 
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+
     public PlayerDataManager getPlayerDataManager(){
         return playerDataManager;
     }
@@ -118,5 +140,9 @@ public final class LandClaiming extends APIHook {
 
     public BaseConfig getBaseConfig() {
         return baseConfig;
+    }
+
+    public static Economy getEconomy(){
+        return econ;
     }
 }

@@ -8,9 +8,7 @@ import net.dohaw.play.landclaiming.Utils;
 import net.dohaw.play.landclaiming.files.MessagesConfig;
 import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
-import net.dohaw.play.landclaiming.region.SingleRegionData;
-import net.dohaw.play.landclaiming.region.RegionDescription;
-import net.dohaw.play.landclaiming.region.RegionType;
+import net.dohaw.play.landclaiming.region.*;
 import org.bukkit.Chunk;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -78,13 +76,29 @@ public class ConfirmableCommands implements CommandExecutor {
                 String regionName = args[3];
 
                 if(decision.equalsIgnoreCase("yes")){
-                    if(regionDataManager.getDataFromName(regionName) != null){
+                    if(regionDataManager.getRegionDataFromName(regionName) != null){
+                        RegionData data = regionDataManager.getRegionDataFromName(regionName);
+                        regionDataManager.delete(data);
 
+                        String msg = messagesConfig.getMessage(Message.LAND_UNCLAIM_SUCCESS);
+                        int claimsGained;
+
+                        if(data instanceof ConnectedRegionData){
+                            ConnectedRegionData crd = (ConnectedRegionData) data;
+                            claimsGained = crd.getConnectedData().size();
+                        }else{
+                            claimsGained = 1;
+                        }
+
+                        int playerClaims = playerDataManager.getNumClaimsAvailable(player.getUniqueId()) + claimsGained;
+                        msg = Utils.replacePlaceholders("%amount%", msg, String.valueOf(playerClaims));
+                        msg = Utils.replacePlaceholders("%claimsGained%", msg, String.valueOf(claimsGained));
+                        chatFactory.sendPlayerMessage(msg, true, player, PREFIX);
                     }
                 }
 
             }else if(args[0].equalsIgnoreCase("unclaim") && args.length == 2){
-
+                chatFactory.sendPlayerMessage("Aborting...", true, player, PREFIX);
             }
 
         }

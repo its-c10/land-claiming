@@ -4,13 +4,11 @@ import me.c10coding.coreapi.APIHook;
 import me.c10coding.coreapi.menus.Menu;
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
-import net.dohaw.play.landclaiming.region.SingleRegionData;
-import net.dohaw.play.landclaiming.region.RegionDescription;
-import net.dohaw.play.landclaiming.region.RegionFlag;
-import net.dohaw.play.landclaiming.region.RegionFlagType;
+import net.dohaw.play.landclaiming.region.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -22,7 +20,7 @@ import java.util.HashMap;
 
 public class AlterFlagPropertiesMenu extends Menu implements Listener {
 
-    private SingleRegionData data;
+    private RegionData data;
     private RegionDataManager regionDataManager;
     private RegionFlag flag;
     private RegionFlagType fType;
@@ -32,7 +30,7 @@ public class AlterFlagPropertiesMenu extends Menu implements Listener {
     public AlterFlagPropertiesMenu(APIHook plugin, String menuTitle, String regionName, RegionFlagType fType, RegionDescription desc) {
         super(plugin, menuTitle, 9);
         this.regionDataManager = ((LandClaiming)plugin).getRegionDataManager();
-        this.data = regionDataManager.getDataFromName(regionName);
+        this.data = regionDataManager.getRegionDataFromName(regionName);
         this.fType = fType;
         this.flag = data.getFlags().get(fType);
         this.regionName = regionName;
@@ -64,19 +62,15 @@ public class AlterFlagPropertiesMenu extends Menu implements Listener {
                 ItemStack itemClicked = e.getCurrentItem();
                 Material mat = itemClicked.getType();
                 if(e.getSlot() == 4){
-                    /*
-                        Disable it
-                     */
+                /*
+                    Disable it
+                 */
                     if(mat == Material.LIME_CONCRETE){
-                        data.setFlag(fType, false);
-                        flag = new RegionFlag(false);
-                        regionDataManager.setRegionData(data);
+                        setFlag(false);
                         itemClicked.setType(Material.RED_CONCRETE);
                         chatFactory.sendPlayerMessage("You have &cdisabled&f the region flag &e" + fType.name() + "&f for region &e" + regionName, true, player, ((LandClaiming)plugin).getBaseConfig().getPluginPrefix());
                     }else{
-                        data.setFlag(fType, true);
-                        flag = new RegionFlag(true);
-                        regionDataManager.setRegionData(data);
+                        setFlag(true);
                         itemClicked.setType(Material.LIME_CONCRETE);
                         chatFactory.sendPlayerMessage("You have &aenabled&f the region flag &e" + fType.name() + "&f for region &e" + regionName, true, player, ((LandClaiming)plugin).getBaseConfig().getPluginPrefix());
                     }
@@ -85,7 +79,6 @@ public class AlterFlagPropertiesMenu extends Menu implements Listener {
                     HashMap<String, Object> newMetaStuff = getChangeSettingData();
                     String displayName = (String) newMetaStuff.get("Display Name");
                     itemClickedMeta.setDisplayName(chatFactory.colorString(displayName));
-
                     itemClicked.setItemMeta(itemClickedMeta);
                 /*
                     Back
@@ -112,5 +105,19 @@ public class AlterFlagPropertiesMenu extends Menu implements Listener {
             map.put("Material", Material.RED_CONCRETE);
         }
         return map;
+    }
+
+    private void setFlag(boolean b){
+
+        if(data instanceof ConnectedRegionData){
+            ConnectedRegionData crd = (ConnectedRegionData) data;
+            for(SingleRegionData srd : crd.getConnectedData()){
+                srd.setFlag(fType, b);
+            }
+        }else{
+            data.setFlag(fType, b);
+        }
+        flag = new RegionFlag(b);
+        regionDataManager.setRegionData(data);
     }
 }

@@ -90,7 +90,6 @@ public class ClaimDisplayMenu extends Menu implements Listener {
                     desc = desc.replace("_", " ");
                     lore.add("&eType: &c" + desc);
                 }
-
                 lore = chatFactory.colorLore(lore);
 
                 inv.addItem(createGuiItem(ITEM_MAT, displayName, lore));
@@ -98,7 +97,7 @@ public class ClaimDisplayMenu extends Menu implements Listener {
                     If the player is sitting in their own claim, then set the item to their player head and make it glow.
                  */
                 Chunk playerChunk = player.getLocation().getChunk();
-                boolean isInChunk = data instanceof ConnectedRegionData ? ((ConnectedRegionData)data).getChunks().contains(player) : ((SingleRegionData) data).getChunk().equals(playerChunk);
+                boolean isInChunk = data instanceof ConnectedRegionData ? ((ConnectedRegionData)data).getChunks().contains(playerChunk) : ((SingleRegionData) data).getChunk().equals(playerChunk);
 
                 if(isInChunk){
 
@@ -170,7 +169,7 @@ public class ClaimDisplayMenu extends Menu implements Listener {
                     }
                 }else if(slot == nextPageSlot){
                     newMenu = new ClaimDisplayMenu(plugin, menuTitle, desc, (page + 1), typeOfMenu);
-                }else if(itemClicked.getType() == ITEM_MAT){
+                }else if(itemClicked.getType() == ITEM_MAT || itemClicked.getType() == Material.PLAYER_HEAD){
                     ItemMeta itemClickedMeta = itemClicked.getItemMeta();
                     String regionName = chatFactory.removeChatColor(itemClickedMeta.getDisplayName());
                     newMenu = new RegionFlagMenu(plugin, regionName, desc, typeOfMenu);

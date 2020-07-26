@@ -3,9 +3,7 @@ package net.dohaw.play.landclaiming.prompts;
 import me.c10coding.coreapi.chat.ChatFactory;
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
-import net.dohaw.play.landclaiming.region.SingleRegionData;
-import net.dohaw.play.landclaiming.region.RegionDescription;
-import net.dohaw.play.landclaiming.region.RegionType;
+import net.dohaw.play.landclaiming.region.*;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
@@ -15,13 +13,13 @@ public class ChangeDescriptionPrompt extends StringPrompt {
 
     private LandClaiming plugin;
     private RegionDataManager regionDataManager;
-    private SingleRegionData singleRegionData;
+    private RegionData rd;
     private ChatFactory chatFactory;
 
     public ChangeDescriptionPrompt(LandClaiming plugin, String regionName){
         this.plugin = plugin;
         this.regionDataManager = plugin.getRegionDataManager();
-        this.singleRegionData = regionDataManager.getDataFromName(regionName);
+        this.rd = regionDataManager.getRegionDataFromName(regionName);
         this.chatFactory = plugin.getAPI().getChatFactory();
     }
 
@@ -45,12 +43,20 @@ public class ChangeDescriptionPrompt extends StringPrompt {
             /*
                 If they are trying to give a player claim a description that can only be given to admin claims.
              */
-            if(singleRegionData.getType() == RegionType.NORMAL && descType == RegionType.ADMIN){
+            if(rd.getType() == RegionType.NORMAL && descType == RegionType.ADMIN){
                 player.sendRawMessage("You can't give a player claim a description that is only valid for admin claims!");
             }else{
-                singleRegionData.setDescription(newDesc);
-                regionDataManager.setRegionData(singleRegionData);
-                player.sendRawMessage("You have changed the region description of region " + singleRegionData.getName() + " to " + chatFactory.firstUpperRestLower(newDesc.name()));
+                if(rd instanceof ConnectedRegionData){
+                    for(SingleRegionData srd : ((ConnectedRegionData)rd).getConnectedData()){
+                        srd.setDescription(newDesc);
+                    }
+                }else{
+                    rd.setDescription(newDesc);
+                }
+                regionDataManager.setRegionData(rd);
+                regionDataManager.saveData();
+                regionDataManager.loadData();
+                player.sendRawMessage("You have changed the region description of region " + rd.getName() + " to " + chatFactory.firstUpperRestLower(newDesc.name()));
             }
         }else{
             player.sendRawMessage("This is not a valid region description!");

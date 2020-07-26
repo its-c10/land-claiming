@@ -26,7 +26,7 @@ public class RegionData {
     }
 
     public boolean isOwner(UUID uuid){
-        return uuid == ownerUUID;
+        return uuid.equals(ownerUUID);
     }
 
     public boolean isTrusted(UUID uuid){
@@ -43,6 +43,18 @@ public class RegionData {
 
     public void addTrustedPlayer(Player player){
         trustedPlayers.add(player.getUniqueId());
+    }
+
+    public void removeTrustedPlayer(PlayerData data){
+        trustedPlayers.remove(data.getUUID());
+    }
+
+    public void removeTrustedPlayer(UUID uuid){
+        trustedPlayers.remove(uuid);
+    }
+
+    public void removeTrustedPlayer(Player player){
+        trustedPlayers.remove(player.getUniqueId());
     }
 
     public List<UUID> getTrustedPlayers(){

@@ -4,6 +4,7 @@ main: net.dohaw.play.landclaiming.LandClaiming
 api-version: 1.13
 depend:
   - CoreAPI
+  - Vault
 commands:
   land:
     description: "Opens the land claim GUI"
@@ -17,15 +18,11 @@ commands:
     description: "Allows you to give access to a chunk"
   landadmin:
     description: "Opens the admin land claim GUI"
-  adminclaim:
-    description: "Makes an admin claim"
-  adminunclaim:
-    description: "Un-claims an admin claim"
   confirmable:
     description: "Confirmable commands"
 
 permissions:
-  land.guiaccess:
+  land.claim:
     default: true
   land.autoclaim:
     default: true

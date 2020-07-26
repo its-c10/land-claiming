@@ -48,7 +48,26 @@ public class RegionDataManager {
             }
         }
 
-        Bukkit.broadcastMessage(regionData.toString());
+        Iterator<RegionData> itr4 = regionData.iterator();
+        while(itr4.hasNext()){
+            RegionData rd = itr4.next();
+            if(rd instanceof ConnectedRegionData){
+
+                ConnectedRegionData connectedRegionData = (ConnectedRegionData) rd;
+                SingleRegionData firstConnectedRegion = connectedRegionData.getConnectedData().get(0);
+                String regionName = firstConnectedRegion.getName();
+                connectedRegionData.setName(regionName);
+                connectedRegionData.setFlags(firstConnectedRegion.getFlags());
+
+                List<UUID> trustedPlayers = new ArrayList<>();
+                for(SingleRegionData srd : connectedRegionData.getConnectedData()){
+                    List<UUID> srdTrustedPlayers = srd.getTrustedPlayers();
+                    trustedPlayers.addAll(srdTrustedPlayers);
+                }
+
+            }
+        }
+
         this.regionDataList = regionData;
     }
 
@@ -109,10 +128,11 @@ public class RegionDataManager {
 
     }
 
-    /*
-        srdlist is the loaded list of single region data objects
-        potdatachunk is the chunk im checking
-        srd1 is the current chunk that i know has data and want to see if there are any connecting chunks wih data.
+    /**
+     * @param srd1 The current chunk being checked for any connecting (nearby) chunks with data
+     * @param potDataChunk The chunk being checked
+     * @param srdList The loaded list of single region data objects
+     * @return If there are any nearby/connecting chunks with data.
      */
     private boolean isInConnection(SingleRegionData srd1, Chunk potDataChunk, List<SingleRegionData> srdList){
         if(hasData(potDataChunk, srdList)){
@@ -170,6 +190,14 @@ public class RegionDataManager {
         }
     }
 
+    public void setRegionData(RegionData data){
+        if(data instanceof SingleRegionData){
+            setRegionData((SingleRegionData)data);
+        }else{
+            setRegionData((ConnectedRegionData)data);
+        }
+    }
+
     public void setRegionData(SingleRegionData singleRegionData){
         Chunk chunk = singleRegionData.getChunk();
         int index = regionDataList.indexOf(getDataFromChunk(chunk));
@@ -180,7 +208,7 @@ public class RegionDataManager {
         SingleRegionData srd = connectedRegionData.getConnectedData().get(0);
         ConnectedRegionData crdReplacing = getConnectedRegion(srd.getChunk());
         int index = regionDataList.indexOf(crdReplacing);
-        regionDataList.set(index, srd);
+        regionDataList.set(index, connectedRegionData);
     }
 
     public List<RegionData> getRegionData(){
@@ -200,8 +228,10 @@ public class RegionDataManager {
         for(RegionData rd : regionDataList){
             if(rd instanceof ConnectedRegionData){
                 ConnectedRegionData crd = (ConnectedRegionData)rd;
-                if(crd.getChunks().contains(chunk)){
-                    return true;
+                for(SingleRegionData srd : crd.getConnectedData()){
+                    if(srd.getChunk().equals(chunk)){
+                        return true;
+                    }
                 }
             }else{
                 SingleRegionData srd = (SingleRegionData) rd;
@@ -234,6 +264,7 @@ public class RegionDataManager {
         return hasData(location.getChunk());
     }
 
+/*
     public boolean doConnect(SingleRegionData srd1, SingleRegionData srd2){
         if(srd1.getType() == srd2.getType()){
             return srd1.getDescription() == srd2.getDescription();
@@ -241,14 +272,16 @@ public class RegionDataManager {
         return false;
     }
 
+
     public boolean doConnect(SingleRegionData srd1, Chunk chunk){
         if(hasData(chunk)){
             SingleRegionData data = getDataFromChunk(chunk);
             return doConnect(srd1, data);
         }
         return false;
-    }
+    }*/
 
+    /*
     private boolean hasConnectingData(SingleRegionData srd){
 
         Chunk srdChunk = srd.getChunk();
@@ -260,7 +293,7 @@ public class RegionDataManager {
 
         return doConnect(srd, leftChunk) || doConnect(srd, rightChunk) || doConnect(srd, forwardChunk) || doConnect(srd, backChunk);
 
-    }
+    }*/
 
     public SingleRegionData create(UUID owner, Chunk chunk, RegionDescription desc, RegionType type){
         SingleRegionData singleRegionData = regionDataHandler.create(owner, chunk, desc, type);
@@ -268,9 +301,14 @@ public class RegionDataManager {
         return singleRegionData;
     }
     
-    public void delete(SingleRegionData data){
+    public void delete(RegionData data){
         regionDataList.remove(data);
-        regionDataHandler.delete(data);
+        if(data instanceof ConnectedRegionData){
+            List<SingleRegionData> srdList = ((ConnectedRegionData) data).getConnectedData();
+            for(SingleRegionData srd : srdList){
+               regionDataHandler.delete(srd);
+            }
+        }
     }
     
     public SingleRegionData getDataFromLocation(Location loc){
@@ -312,7 +350,7 @@ public class RegionDataManager {
         return null;
     }
 
-    public SingleRegionData getDataFromName(String name){
+    public SingleRegionData getSingleRegionDataFromName(String name){
         for(RegionData rd : regionDataList){
             if(rd instanceof ConnectedRegionData){
                 ConnectedRegionData crd = (ConnectedRegionData)rd;
@@ -332,6 +370,15 @@ public class RegionDataManager {
         return null;
     }
 
+    public RegionData getRegionDataFromName(String name){
+        for(RegionData rd : regionDataList){
+            if(rd.getName().equalsIgnoreCase(name)){
+                return rd;
+            }
+        }
+        return null;
+    }
+
     public List<RegionData> getPlayerRegionData(UUID uuid){
         List<RegionData> playerRegionData = new ArrayList<>();
         for(RegionData rd : regionDataList){
@@ -342,6 +389,7 @@ public class RegionDataManager {
         return playerRegionData;
     }
 
+    /*
     public int getPlayerNumRegions(UUID uuid){
         int num = 0;
         for(RegionData rd : regionDataList){
@@ -354,7 +402,7 @@ public class RegionDataManager {
             }
         }
         return num;
-    }
+    }*/
 
     public List<RegionData> getPlayerRegionDataByDescription(UUID uuid, RegionDescription desc, RegionType type){
         List<RegionData> playerSingleRegionData = new ArrayList<>();

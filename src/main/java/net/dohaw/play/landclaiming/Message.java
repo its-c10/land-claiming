@@ -11,6 +11,7 @@ public enum Message {
     LAND_PURCHASE_SUCCESS("Land Purchase Success"),
     LAND_PURCHASE_FAIL("Land Purchase Fail"),
     LAND_ENTRY_DENY("Land Entry Deny"),
+    PVP_DENY("PVP Deny"),
     INACTIVE_PLAYER_RETURNS("Inactive Player Returns"),
     BLOCK_BREAK_DENY("Block Break Deny"),
     ITEM_USE_DENY("Item Use Deny"),

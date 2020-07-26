@@ -25,7 +25,7 @@ public class RegionFlagMenu extends Menu implements Listener {
 
     private RegionDataManager regionDataManager;
     private String regionName;
-    private SingleRegionData data;
+    private RegionData data;
     private RegionDescription desc;
     private RegionType type;
 
@@ -38,17 +38,19 @@ public class RegionFlagMenu extends Menu implements Listener {
     private final int CHANGE_TYPE_SLOT;
     private final int BACK_SLOT;
 
-    public RegionFlagMenu(APIHook plugin, String regionName, RegionDescription desc, RegionType type) {
-        super(plugin, "Region Flags", 36);
+    private final List<RegionFlagType> adminFlags = Arrays.asList(RegionFlagType.DAMAGE_PLAYERS, RegionFlagType.DAMAGE_ANIMALS, RegionFlagType.NAME_ANIMALS, RegionFlagType.BLOCK_BREAKING, RegionFlagType.BLOCK_PLACING);
 
+    public RegionFlagMenu(APIHook plugin, String regionName, RegionDescription desc, RegionType type) {
+
+        super(plugin, "Region Flags", 36);
         this.RENAME_SLOT = inv.getSize() - 9;
-        this.CHANGE_DESC_SLOT = inv.getSize() - 4;
+        this.CHANGE_DESC_SLOT = type == RegionType.ADMIN ? inv.getSize() - 4 : inv.getSize() - 5;
         this.CHANGE_TYPE_SLOT = inv.getSize() - 6;
         this.BACK_SLOT = inv.getSize() - 1;
 
         this.regionDataManager = ((LandClaiming)plugin).getRegionDataManager();
         this.regionName = regionName;
-        this.data = regionDataManager.getDataFromName(regionName);
+        this.data = regionDataManager.getRegionDataFromName(regionName);
         this.desc = desc;
         this.type = type;
         Bukkit.getPluginManager().registerEvents(this, plugin);
@@ -71,6 +73,7 @@ public class RegionFlagMenu extends Menu implements Listener {
                 Map.Entry<RegionFlagType, RegionFlag> entry = itr.next();
 
                 RegionFlagType flagType = entry.getKey();
+
                 Material mat = flagType.getMenuMaterial();
                 RegionFlag flag = entry.getValue();
                 boolean isEnabled = flag.isEnabled();
@@ -80,14 +83,24 @@ public class RegionFlagMenu extends Menu implements Listener {
                 }else{
                     lore.add("&c&lDisabled");
                 }
-
                 lore = chatFactory.colorLore(lore);
-                inv.addItem(createGuiItem(mat, chatFactory.colorString("&e" + flagType.getConfigKey()), lore));
+
+                if(type == RegionType.NORMAL){
+                    if(!adminFlags.contains(flagType)){
+                        inv.addItem(createGuiItem(mat, chatFactory.colorString("&e" + flagType.getConfigKey()), lore));
+                    }
+                }else{
+                    inv.addItem(createGuiItem(mat, chatFactory.colorString("&e" + flagType.getConfigKey()), lore));
+                }
+
             }
 
         }
 
-        createChangeTypeButton();
+        if(type == RegionType.ADMIN){
+            createChangeTypeButton();
+        }
+
         createChangeDescriptionButton();
         createRenameButton();
 
@@ -101,6 +114,7 @@ public class RegionFlagMenu extends Menu implements Listener {
     }
 
     private void createChangeTypeButton(){
+
         List<String> lore = new ArrayList<>();
         String typeStr = data.getType() == RegionType.ADMIN ? "Admin" : "Player";
 
@@ -171,7 +185,16 @@ public class RegionFlagMenu extends Menu implements Listener {
                     }else{
                         data.setType(RegionType.ADMIN);
                     }
+
+                    if(data instanceof ConnectedRegionData){
+                        for(SingleRegionData srd : ((ConnectedRegionData)data).getConnectedData()){
+                            srd.setType(type);
+                        }
+                    }
+
                     regionDataManager.setRegionData(data);
+                    regionDataManager.saveData();
+                    regionDataManager.loadData();
 
                     List<String> lore = new ArrayList<>();
                     String typeStr = chatFactory.firstUpperRestLower(data.getType().name());
@@ -181,7 +204,8 @@ public class RegionFlagMenu extends Menu implements Listener {
 
                     itemClickedMeta.setLore(lore);
                     itemClicked.setItemMeta(itemClickedMeta);
-
+                    player.closeInventory();
+                    chatFactory.sendPlayerMessage("You have changed this region type to " + StringUtils.capitalize(type.toString()) + "!", true, player, ((LandClaiming)plugin).getBaseConfig().getPluginPrefix());
                 }else{
                     menuTitle = chatFactory.removeChatColor(itemClicked.getItemMeta().getDisplayName());
                     //Menu title is just the config key;

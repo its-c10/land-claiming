@@ -14,6 +14,7 @@ public enum RegionDescription {
     //Admins
     SPAWN(new String[]{"spawn"}, RegionType.ADMIN),
     PVP_ARENA(new String[]{"pvp", "arena", "pvparena", "pvp arena"}, RegionType.ADMIN),
+    ADMIN_MARKET(new String[]{"adminm", "adminmarket", "am"}, RegionType.ADMIN),
     JAIL(new String[]{"jail"}, RegionType.ADMIN),
     TUTORIAL(new String[]{"tut", "tutorial", "how-to", "howto"}, RegionType.ADMIN);
 

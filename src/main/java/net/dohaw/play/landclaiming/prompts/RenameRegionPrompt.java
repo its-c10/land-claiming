@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 public class RenameRegionPrompt extends StringPrompt {
 
     private LandClaiming plugin;
-    private SingleRegionData singleRegionData;
     private String regionName;
     private RegionDataManager regionDataManager;
 

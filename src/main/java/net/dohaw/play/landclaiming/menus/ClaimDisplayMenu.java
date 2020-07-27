@@ -9,6 +9,7 @@ import net.dohaw.play.landclaiming.region.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -50,10 +51,18 @@ public class ClaimDisplayMenu extends Menu implements Listener {
     @Override
     public void initializeItems(Player player) {
 
-        if(desc == null){
-            this.data = regionDataManager.getPlayerRegionData(player.getUniqueId());
+        if(typeOfMenu == RegionType.NORMAL){
+            if(desc == null){
+                this.data = regionDataManager.getPlayerRegionData(player.getUniqueId());
+            }else{
+                this.data = regionDataManager.getPlayerRegionDataByDescription(player.getUniqueId(), desc);
+            }
         }else{
-            this.data = regionDataManager.getPlayerRegionDataByDescription(player.getUniqueId(), desc);
+            if(desc == null){
+                this.data = regionDataManager.getAdminRegionData();
+            }else{
+                this.data = regionDataManager.getAdminRegionDataByDescription(desc);
+            }
         }
 
         if(!data.isEmpty()){
@@ -83,6 +92,11 @@ public class ClaimDisplayMenu extends Menu implements Listener {
                 }else{
                     SingleRegionData srd = (SingleRegionData)data;
                     lore.add("&eLocation: &cX: " + srd.getChunk().getX() + " | Z: " + srd.getChunk().getZ());
+                }
+
+                if(typeOfMenu == RegionType.ADMIN){
+                    OfflinePlayer claimer = Bukkit.getOfflinePlayer(data.getOwnerUUID());
+                    lore.add("&eClaimed by &c" + claimer.getName());
                 }
 
                 if(desc == null){
@@ -172,7 +186,7 @@ public class ClaimDisplayMenu extends Menu implements Listener {
                 }else if(itemClicked.getType() == ITEM_MAT || itemClicked.getType() == Material.PLAYER_HEAD){
                     ItemMeta itemClickedMeta = itemClicked.getItemMeta();
                     String regionName = chatFactory.removeChatColor(itemClickedMeta.getDisplayName());
-                    newMenu = new RegionFlagMenu(plugin, regionName, desc, typeOfMenu);
+                    newMenu = new RegionFlagMenu(plugin, regionName, desc, typeOfMenu, player);
                 }
 
                 if(newMenu != null){

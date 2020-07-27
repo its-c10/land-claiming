@@ -10,7 +10,7 @@ Land Purchase Fail: "Couldn't purchase %amount% chunks! You don't have enough mo
 Inactive Player Returns: "You were inactive for too long and your land was unclaimed. The items were sold to the market and you earned %amount% from the sales."
 Block Break Deny: "You can't break this here."
 PVP Deny: "You can't PVP here!"
-Item Use: "You can't use this here."
+Item Use Deny: "You can't use this here."
 Player Damage Deny: "PvP is not allowed in this area!"
 Mob Damage Deny: "You can't hurt this animal here!"
 Player Trusted: "You trusted %player% with access to this area."

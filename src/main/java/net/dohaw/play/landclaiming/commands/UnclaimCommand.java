@@ -7,6 +7,7 @@ import net.dohaw.play.landclaiming.Utils;
 import net.dohaw.play.landclaiming.files.MessagesConfig;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import net.dohaw.play.landclaiming.region.RegionData;
+import net.dohaw.play.landclaiming.region.RegionType;
 import net.dohaw.play.landclaiming.region.SingleRegionData;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
@@ -37,10 +38,17 @@ public class UnclaimCommand implements CommandExecutor {
             Location playerLocation = player.getLocation();
             if(regionDataManager.hasData(playerLocation)){
                 RegionData rd = regionDataManager.getDataFromLocation(playerLocation);
-                if(rd.getOwnerUUID().equals(player.getUniqueId())){
-                    sendConfirmationMessage(player, rd);
+                /*
+                    Don't need to check for the owner if it's an admin claim
+                 */
+                if(rd.getType() == RegionType.NORMAL){
+                    if(rd.getOwnerUUID().equals(player.getUniqueId())){
+                        sendConfirmationMessage(player, rd);
+                    }else{
+                        chatFactory.sendPlayerMessage("Only the owner of the region can use this command!", true, player, PREFIX);
+                    }
                 }else{
-                    chatFactory.sendPlayerMessage("Only the owner of the region can use this command!", true, player, PREFIX);
+                    sendConfirmationMessage(player, rd);
                 }
             }else{
                 chatFactory.sendPlayerMessage("This chunk doesn't have any region data!", true, player, PREFIX);

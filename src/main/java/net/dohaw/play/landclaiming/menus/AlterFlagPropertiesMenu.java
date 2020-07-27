@@ -84,7 +84,7 @@ public class AlterFlagPropertiesMenu extends Menu implements Listener {
                     Back
                  */
                 }else if(e.getSlot() == inv.getSize() - 1){
-                    RegionFlagMenu newMenu = new RegionFlagMenu(plugin, regionName, desc, data.getType());
+                    RegionFlagMenu newMenu = new RegionFlagMenu(plugin, regionName, desc, data.getType(), player);
                     player.closeInventory();
                     newMenu.initializeItems(player);
                     newMenu.openInventory(player);

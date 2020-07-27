@@ -1,6 +1,7 @@
 package net.dohaw.play.landclaiming;
 
 import me.c10coding.coreapi.chat.ChatFactory;
+import net.dohaw.play.landclaiming.region.RegionDescription;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -141,6 +142,10 @@ public class Utils {
 
         return tcMsg1;
 
+    }
+
+    public static boolean isAdminDescription(RegionDescription desc){
+        return desc == RegionDescription.ADMIN_MARKET || desc == RegionDescription.SPAWN || desc == RegionDescription.PVP_ARENA || desc == RegionDescription.JAIL || desc == RegionDescription.TUTORIAL;
     }
 
 }

@@ -57,7 +57,7 @@ public class LandCommand implements CommandExecutor {
                 String potRegionName = args[0];
                 if(regionDataManager.getRegionDataFromName(potRegionName) != null) {
                     RegionData rd = regionDataManager.getRegionDataFromName(potRegionName);
-                    RegionFlagMenu menu = new RegionFlagMenu(plugin, potRegionName, rd.getDescription(), rd.getType());
+                    RegionFlagMenu menu = new RegionFlagMenu(plugin, potRegionName, rd.getDescription(), rd.getType(), player);
                     menu.initializeItems(player);
                     menu.openInventory(player);
                 }

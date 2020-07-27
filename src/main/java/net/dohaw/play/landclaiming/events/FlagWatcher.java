@@ -179,7 +179,7 @@ public class FlagWatcher implements Listener {
             if(regionDataManager.hasData(chunk)){
                 RegionData rd = regionDataManager.getDataFromChunk(chunk);
                 if(rd.getType() == RegionType.ADMIN){
-                    if(!isFlagEnabled(chunk, RegionFlagType.DAMAGE_PLAYERS) && !player.hasPermission("land.bypassaccess")){
+                    if(!isFlagEnabled(chunk, RegionFlagType.DAMAGE_PLAYERS)){
                         e.setCancelled(true);
                     }
                 }
@@ -223,7 +223,7 @@ public class FlagWatcher implements Listener {
     }
 
     @EventHandler
-    public void onPlayerNameAnimal(PlayerInteractAtEntityEvent e){
+    public void onPlayerNameAnimal(PlayerInteractEntityEvent e){
 
         Player player = e.getPlayer();
         Entity rightClickedMob = e.getRightClicked();
@@ -232,15 +232,21 @@ public class FlagWatcher implements Listener {
         if(regionDataManager.hasData(chunk)){
             RegionData rd = regionDataManager.getDataFromChunk(chunk);
            /*
-            Is a mob
+                Is a mob
             */
-            if(!(rightClickedMob instanceof Player)){
-                if(rd.getType() == RegionType.ADMIN){
-                    if(!isFlagEnabled(chunk, RegionFlagType.NAME_ANIMALS) && !isTrusted(chunk, player) && !e.getPlayer().hasPermission("land.bypassaccess")){
-                        e.setCancelled(true);
+            ItemStack itemInHand = e.getPlayer().getInventory().getItemInHand();
+            if(itemInHand.getType() == Material.NAME_TAG){
+                if(!(rightClickedMob instanceof Player)){
+                    if(rd.getType() == RegionType.ADMIN){
+                        if(!isFlagEnabled(chunk, RegionFlagType.NAME_ANIMALS) && !isTrusted(chunk, player) && !e.getPlayer().hasPermission("land.bypassaccess")){
+                            e.setCancelled(true);
+                            String msg = messagesConfig.getMessage(Message.ITEM_USE_DENY);
+                            chatFactory.sendPlayerMessage(msg, true, player, PREFIX);
+                        }
                     }
                 }
             }
+
         }
 
     }
@@ -252,6 +258,12 @@ public class FlagWatcher implements Listener {
             RegionData rd = regionDataManager.getDataFromChunk(chunk);
             if(rd.getType() == RegionType.ADMIN){
                 if(!isFlagEnabled(chunk, RegionFlagType.BLOCK_BREAKING) && !isTrusted(chunk, e.getPlayer()) && !e.getPlayer().hasPermission("land.bypassaccess")){
+                    String msg = messagesConfig.getMessage(Message.BLOCK_BREAK_DENY);
+                    chatFactory.sendPlayerMessage(msg, true, e.getPlayer(), PREFIX);
+                    e.setCancelled(true);
+                }
+            }else{
+                if(!isTrusted(chunk, e.getPlayer()) && !e.getPlayer().hasPermission("land.bypassaccess")){
                     e.setCancelled(true);
                 }
             }
@@ -267,6 +279,17 @@ public class FlagWatcher implements Listener {
                 if(!isFlagEnabled(chunk, RegionFlagType.BLOCK_PLACING) && !isTrusted(chunk, e.getPlayer()) && !e.getPlayer().hasPermission("land.bypassaccess")){
                     e.setCancelled(true);
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent e){
+        Chunk chunkTeleportingTo = e.getTo().getChunk();
+        if(regionDataManager.hasData(chunkTeleportingTo)){
+            if(!isFlagEnabled(chunkTeleportingTo, RegionFlagType.UNTRUSTED_PLAYER_ACCESS) && !isTrusted(chunkTeleportingTo, e.getPlayer()) && !e.getPlayer().hasPermission("land.bypassaccess")){
+                e.setCancelled(true);
+                chatFactory.sendPlayerMessage("This region doesn't allow teleportation to this area!", true, e.getPlayer(), PREFIX);
             }
         }
     }

@@ -33,6 +33,10 @@ public class ConnectedRegionData extends RegionData{
         connectedData.add(singleRegionData);
     }
 
+    public void removeData(SingleRegionData singleRegionData){
+        connectedData.remove(singleRegionData);
+    }
+
     public static ConnectedRegionData join(List<ConnectedRegionData> crdList){
         if(crdList.size() > 1){
             List<SingleRegionData> srdList = new ArrayList<>();

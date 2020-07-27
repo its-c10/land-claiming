@@ -3,7 +3,6 @@ package net.dohaw.play.landclaiming.managers;
 import net.dohaw.play.landclaiming.LandClaiming;
 import net.dohaw.play.landclaiming.handlers.RegionDataHandler;
 import net.dohaw.play.landclaiming.region.*;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 
@@ -139,13 +138,21 @@ public class RegionDataManager {
             SingleRegionData data = getDataFromChunk(potDataChunk, srdList);
             if(data != null){
                 if(data instanceof SingleRegionData){
-                    if(srd1.getOwnerUUID().equals(data.getOwnerUUID())){
-                        if(srd1.getDescription() == data.getDescription()){
-                            if(!data.isConnected()){
-                                return srd1.getType() == data.getType();
+                    if(srd1.getDescription() == data.getDescription()){
+                        if(!data.isConnected()){
+                            /*
+                                Don't need to compare owners with admin claims
+                             */
+                            if(data.getType() == RegionType.NORMAL){
+                                if(srd1.getOwnerUUID().equals(data.getOwnerUUID())){
+                                    return srd1.getType() == data.getType();
+                                }
+                            }else{
+                                return true;
                             }
                         }
                     }
+
                 }
             }
         }
@@ -213,6 +220,27 @@ public class RegionDataManager {
 
     public List<RegionData> getRegionData(){
         return regionDataList;
+    }
+
+    public List<RegionData> getAdminRegionData(){
+        List<RegionData> rdList = new ArrayList<>();
+        for(RegionData rd : regionDataList){
+            if(rd.getType() == RegionType.ADMIN){
+                rdList.add(rd);
+            }
+        }
+        return rdList;
+    }
+
+    public List<RegionData> getAdminRegionDataByDescription(RegionDescription desc){
+        List<RegionData> adminRegions = getAdminRegionData();
+        List<RegionData> rdList = new ArrayList<>();
+        for(RegionData rd : adminRegions){
+            if(rd.getDescription() == desc){
+                rdList.add(rd);
+            }
+        }
+        return rdList;
     }
 
     public SingleRegionData getDataFromChunk(Chunk chunk, List<SingleRegionData> srdList){
@@ -308,7 +336,19 @@ public class RegionDataManager {
             for(SingleRegionData srd : srdList){
                regionDataHandler.delete(srd);
             }
+        }else{
+            regionDataHandler.delete((SingleRegionData)data);
         }
+    }
+
+    /*
+        Delete a singular region within a connected region
+     */
+    public void deleteWithinConnected(SingleRegionData data){
+        ConnectedRegionData crd = getConnectedRegion(data.getChunk());
+        crd.removeData(data);
+        setRegionData(crd);
+        regionDataHandler.delete(data);
     }
     
     public SingleRegionData getDataFromLocation(Location loc){

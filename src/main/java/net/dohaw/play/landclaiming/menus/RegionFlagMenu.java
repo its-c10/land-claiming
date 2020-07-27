@@ -3,6 +3,7 @@ package net.dohaw.play.landclaiming.menus;
 import me.c10coding.coreapi.APIHook;
 import me.c10coding.coreapi.menus.Menu;
 import net.dohaw.play.landclaiming.LandClaiming;
+import net.dohaw.play.landclaiming.Utils;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
 import net.dohaw.play.landclaiming.prompts.ChangeDescriptionPrompt;
 import net.dohaw.play.landclaiming.prompts.RenameRegionPrompt;
@@ -40,11 +41,11 @@ public class RegionFlagMenu extends Menu implements Listener {
 
     private final List<RegionFlagType> adminFlags = Arrays.asList(RegionFlagType.DAMAGE_PLAYERS, RegionFlagType.DAMAGE_ANIMALS, RegionFlagType.NAME_ANIMALS, RegionFlagType.BLOCK_BREAKING, RegionFlagType.BLOCK_PLACING);
 
-    public RegionFlagMenu(APIHook plugin, String regionName, RegionDescription desc, RegionType type) {
+    public RegionFlagMenu(APIHook plugin, String regionName, RegionDescription desc, RegionType type, Player player) {
 
         super(plugin, "Region Flags", 36);
         this.RENAME_SLOT = inv.getSize() - 9;
-        this.CHANGE_DESC_SLOT = type == RegionType.ADMIN ? inv.getSize() - 4 : inv.getSize() - 5;
+        this.CHANGE_DESC_SLOT = player.hasPermission("land.admin") ? inv.getSize() - 4 : inv.getSize() - 5;
         this.CHANGE_TYPE_SLOT = inv.getSize() - 6;
         this.BACK_SLOT = inv.getSize() - 1;
 
@@ -58,6 +59,13 @@ public class RegionFlagMenu extends Menu implements Listener {
 
     @Override
     public void initializeItems(Player player) {
+
+        /*
+            Fixes the problem that occurs if a player changes a admin claim to a normal claim and the description is still an admin description
+         */
+        if(type == RegionType.NORMAL && Utils.isAdminDescription(desc)){
+            this.desc = RegionDescription.GENERAL;
+        }
 
         if(data != null){
 
@@ -97,7 +105,7 @@ public class RegionFlagMenu extends Menu implements Listener {
 
         }
 
-        if(type == RegionType.ADMIN){
+        if(player.hasPermission("land.admin")){
             createChangeTypeButton();
         }
 
@@ -180,17 +188,19 @@ public class RegionFlagMenu extends Menu implements Listener {
 
                     ItemMeta itemClickedMeta = itemClicked.getItemMeta();
 
+                    RegionType newType;
                     if(type == RegionType.ADMIN){
-                        data.setType(RegionType.NORMAL);
+                        newType = RegionType.NORMAL;
                     }else{
-                        data.setType(RegionType.ADMIN);
+                        newType = RegionType.ADMIN;
                     }
 
                     if(data instanceof ConnectedRegionData){
                         for(SingleRegionData srd : ((ConnectedRegionData)data).getConnectedData()){
-                            srd.setType(type);
+                            srd.setType(newType);
                         }
                     }
+                    data.setType(newType);
 
                     regionDataManager.setRegionData(data);
                     regionDataManager.saveData();
@@ -205,7 +215,7 @@ public class RegionFlagMenu extends Menu implements Listener {
                     itemClickedMeta.setLore(lore);
                     itemClicked.setItemMeta(itemClickedMeta);
                     player.closeInventory();
-                    chatFactory.sendPlayerMessage("You have changed this region type to " + StringUtils.capitalize(type.toString()) + "!", true, player, ((LandClaiming)plugin).getBaseConfig().getPluginPrefix());
+                    chatFactory.sendPlayerMessage("You have changed this region type to " + StringUtils.capitalize(newType.toString()) + "!", true, player, ((LandClaiming)plugin).getBaseConfig().getPluginPrefix());
                 }else{
                     menuTitle = chatFactory.removeChatColor(itemClicked.getItemMeta().getDisplayName());
                     //Menu title is just the config key;

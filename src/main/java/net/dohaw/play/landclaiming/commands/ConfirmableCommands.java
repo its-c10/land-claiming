@@ -8,11 +8,14 @@ import net.dohaw.play.landclaiming.Utils;
 import net.dohaw.play.landclaiming.files.MessagesConfig;
 import net.dohaw.play.landclaiming.managers.PlayerDataManager;
 import net.dohaw.play.landclaiming.managers.RegionDataManager;
+import net.dohaw.play.landclaiming.prompts.UnclaimPrompt;
 import net.dohaw.play.landclaiming.region.*;
 import org.bukkit.Chunk;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 
@@ -49,11 +52,20 @@ public class ConfirmableCommands implements CommandExecutor {
                 RegionDescription desc = RegionDescription.valueOf(descStr);
 
                 if(decision.equalsIgnoreCase("yes")){
-                    RegionType type = RegionType.NORMAL;
-                    Chunk chunk = player.getLocation().getChunk();
 
-                    if(player.hasPermission("land.admin")){
+                    RegionType type;
+                    if(Utils.isAdminDescription(desc)){
                         type = RegionType.ADMIN;
+                    }else{
+                        type = RegionType.NORMAL;
+                    }
+
+                    Chunk chunk = player.getLocation().getChunk();
+                    RegionData potDupe = regionDataManager.getDataFromChunk(chunk);
+
+                    if(potDupe != null){
+                        chatFactory.sendPlayerMessage("This region is already claimed!", true, player, PREFIX);
+                        return false;
                     }
 
                     SingleRegionData rd = regionDataManager.create(player.getUniqueId(), chunk, desc, type);
@@ -77,23 +89,33 @@ public class ConfirmableCommands implements CommandExecutor {
 
                 if(decision.equalsIgnoreCase("yes")){
                     if(regionDataManager.getRegionDataFromName(regionName) != null){
-                        RegionData data = regionDataManager.getRegionDataFromName(regionName);
-                        regionDataManager.delete(data);
-
-                        String msg = messagesConfig.getMessage(Message.LAND_UNCLAIM_SUCCESS);
-                        int claimsGained;
-
-                        if(data instanceof ConnectedRegionData){
-                            ConnectedRegionData crd = (ConnectedRegionData) data;
-                            claimsGained = crd.getConnectedData().size();
+                        if(regionDataManager.getRegionDataFromName(regionName) instanceof ConnectedRegionData){
+                            ConversationFactory cf = new ConversationFactory(plugin);
+                            Conversation conv = cf.withFirstPrompt(new UnclaimPrompt(player, regionName, plugin)).withLocalEcho(false).buildConversation(player);
+                            conv.begin();
                         }else{
-                            claimsGained = 1;
-                        }
+                            RegionData data = regionDataManager.getRegionDataFromName(regionName);
+                            regionDataManager.delete(data);
 
-                        int playerClaims = playerDataManager.getNumClaimsAvailable(player.getUniqueId()) + claimsGained;
-                        msg = Utils.replacePlaceholders("%amount%", msg, String.valueOf(playerClaims));
-                        msg = Utils.replacePlaceholders("%claimsGained%", msg, String.valueOf(claimsGained));
-                        chatFactory.sendPlayerMessage(msg, true, player, PREFIX);
+                            String msg = messagesConfig.getMessage(Message.LAND_UNCLAIM_SUCCESS);
+                            int claimsGained;
+
+                            if(data instanceof ConnectedRegionData){
+                                ConnectedRegionData crd = (ConnectedRegionData) data;
+                                claimsGained = crd.getConnectedData().size();
+                            }else{
+                                claimsGained = 1;
+                            }
+
+                            int playerClaims = playerDataManager.getNumClaimsAvailable(player.getUniqueId()) + claimsGained;
+                            PlayerData pd = playerDataManager.getData(player.getUniqueId());
+                            pd.setClaimAmount(playerClaims);
+                            playerDataManager.setData(player.getUniqueId(), pd);
+
+                            msg = Utils.replacePlaceholders("%amount%", msg, String.valueOf(playerClaims));
+                            msg = Utils.replacePlaceholders("%claimsGained%", msg, String.valueOf(claimsGained));
+                            chatFactory.sendPlayerMessage(msg, true, player, PREFIX);
+                        }
                     }
                 }
 

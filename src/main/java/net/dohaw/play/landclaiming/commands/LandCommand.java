@@ -98,6 +98,14 @@ public class LandCommand implements CommandExecutor {
                     chatFactory.sendPlayerMessage("You do not have permission to buy land!", true, player, PREFIX);
                 }
             }else if(args[0].equalsIgnoreCase("help") && args.length == 1){
+                chatFactory.sendPlayerMessage("LandClaiming Commands: ", true, player, PREFIX);
+                chatFactory.sendPlayerMessage("&6&l/land &f- Basic command to bring up the LandClaiming GUI", false, player, null);
+                chatFactory.sendPlayerMessage("&6&l/land buy <amount> &f- Allows you to purchase land claims", false, player, null);
+                chatFactory.sendPlayerMessage("&6&l/trust <add | remove> <player name> &f- Allows you to give access/trust a player to your region.", false, player, null);
+                chatFactory.sendPlayerMessage("&6&l/claim <type> &f- Allows you to claim land with the given type (Farm, Storage, etc).", false, player, null);
+                chatFactory.sendPlayerMessage("&6&l/unclaim &f- Allows you to unclaim your land (Either the whole region or 1 chunk)", false, player, null);
+                chatFactory.sendPlayerMessage("&6&l/autoclaim <type> &f- Allows you to auto claim land via a specific chunk type. Auto claiming is triggered when you place a certain amount of blocks within a chunk", false, player, null);
+                chatFactory.sendPlayerMessage("&6&l/autoclaim &f- Disables auto claiming", false, player, null);
             }
         }else{
             chatFactory.sendPlayerMessage("This command can only be used by players!", true, sender, PREFIX);

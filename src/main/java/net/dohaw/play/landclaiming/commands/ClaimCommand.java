@@ -47,32 +47,26 @@ public class ClaimCommand implements CommandExecutor {
             Player player = (Player) sender;
             Location playerLocation = player.getLocation();
             String msg;
-            if(args.length == 1){
-                if(player.hasPermission("land.claim")){
+            if(player.hasPermission("land.claim")){
+                if(args.length == 1){
                     String typeAlias = args[0];
                     RegionDescription desc = RegionDescription.getByAlias(typeAlias);
                     if(desc != null){
+
+                        if(Utils.isAdminDescription(desc) && !player.hasPermission("land.admin")){
+                            msg = "You do not have permission to use this claim type!";
+                            chatFactory.sendPlayerMessage(msg, true, sender, PREFIX);
+                            return false;
+                        }
+
                         if(playerDataManager.getNumClaimsAvailable(player.getUniqueId()) > 0 || player.hasPermission("land.nolimit")){
                             if(!regionDataManager.hasData(playerLocation)){
 
-                            /*
-                            RegionType type = RegionType.NORMAL;
-                            Chunk chunk = playerLocation.getChunk();
-                            if(player.hasPermission("land.admin")){
-                                type = RegionType.ADMIN;
-                            }*/
-
-                                //if(rd != null){
                                 msg = messagesConfig.getMessage(Message.LAND_CLAIM);
                                 sendConfirmButton(msg, player, desc);
-                                //}else{
-                                //chatFactory.sendPlayerMessage("There was an error while trying to claim this chunk!", true, player, PREFIX);
-                                //}
 
                             }else{
-                                SingleRegionData rd = regionDataManager.getDataFromLocation(playerLocation);
-                                OfflinePlayer regionOwner = Bukkit.getOfflinePlayer(rd.getOwnerUUID());
-                                chatFactory.sendPlayerMessage("This chunk has already been claimed by &e&l" + regionOwner.getName() + "!", true, sender, PREFIX);
+                                sendAlreadyClaimedMsg(sender, playerLocation);
                             }
                         }else{
                             msg = messagesConfig.getMessage(Message.LAND_CLAIM_FAIL) ;
@@ -81,9 +75,23 @@ public class ClaimCommand implements CommandExecutor {
                     }else{
                         chatFactory.sendPlayerMessage("This is not a valid chunk type!", true, sender, PREFIX);
                     }
-                }else{
-                    chatFactory.sendPlayerMessage("You do not have permission to claim land!", true, sender, PREFIX);
+
+                }else if(args.length == 0){
+                    RegionDescription desc = RegionDescription.GENERAL;
+                    if(playerDataManager.getNumClaimsAvailable(player.getUniqueId()) > 0 || player.hasPermission("land.nolimit")) {
+                        if (!regionDataManager.hasData(playerLocation)) {
+                            msg = messagesConfig.getMessage(Message.LAND_CLAIM);
+                            sendConfirmButton(msg, player, desc);
+                        }else{
+                            sendAlreadyClaimedMsg(sender, playerLocation);
+                        }
+                    }else{
+                        msg = messagesConfig.getMessage(Message.LAND_CLAIM_FAIL) ;
+                        chatFactory.sendPlayerMessage(msg, true, player, PREFIX);
+                    }
                 }
+            }else{
+                chatFactory.sendPlayerMessage("You do not have permission to claim land!", true, sender, PREFIX);
             }
         }
         return false;
@@ -94,6 +102,12 @@ public class ClaimCommand implements CommandExecutor {
         String button2 = "[NO]";
         TextComponent buttonMsg = Utils.createButtonMsg(chatFactory, msg, button1, button2, "/confirmable landclaim yes " + player.getUniqueId() + " " + desc.name(), "/confirmable landclaim no", "Claim Land", "Abort...");
         player.spigot().sendMessage(buttonMsg);
+    }
+
+    private void sendAlreadyClaimedMsg(CommandSender sender, Location playerLocation){
+        SingleRegionData rd = regionDataManager.getDataFromLocation(playerLocation);
+        OfflinePlayer regionOwner = Bukkit.getOfflinePlayer(rd.getOwnerUUID());
+        chatFactory.sendPlayerMessage("This chunk has already been claimed by &e&l" + regionOwner.getName() + "!", true, sender, PREFIX);
     }
 
 

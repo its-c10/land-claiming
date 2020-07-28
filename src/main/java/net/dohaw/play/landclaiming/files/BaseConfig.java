@@ -1,9 +1,9 @@
 package net.dohaw.play.landclaiming.files;
 
-import me.c10coding.coreapi.files.ConfigManager;
+import me.c10coding.coreapi.files.Config;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class BaseConfig extends ConfigManager {
+public class BaseConfig extends Config {
 
     public BaseConfig(JavaPlugin plugin) {
         super(plugin, "config.yml");

@@ -11,9 +11,7 @@ import net.dohaw.play.landclaiming.region.RegionData;
 import net.dohaw.play.landclaiming.region.RegionFlag;
 import net.dohaw.play.landclaiming.region.RegionFlagType;
 import net.dohaw.play.landclaiming.region.RegionType;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
@@ -151,15 +149,38 @@ public class FlagWatcher implements Listener {
         if(regionDataManager.hasData(chunk)){
             if(!isFlagEnabled(chunk, RegionFlagType.UNTRUSTED_PLAYER_ACCESS) && !isTrusted(chunk, player) && !player.hasPermission("land.bypassaccess")){
 
-                e.setCancelled(true);
+                Chunk chunkTo = e.getTo().getChunk();
+                RegionData regionTo = regionDataManager.getDataFromChunk(chunkTo);
+                Chunk chunkFrom = e.getFrom().getChunk();
+                RegionData regionFrom = regionDataManager.getDataFromChunk(chunkFrom);
+
+                if(regionTo.equals(regionFrom)){
+
+                    Location teleportingLocation;
+                    int neighborChunkX = chunkTo.getX();
+                    int neighborChunkZ = chunkTo.getZ() + 1;
+                    World world = chunkTo.getWorld();
+                    Chunk neighborChunk = world.getChunkAt(neighborChunkX, neighborChunkZ);
+                    teleportingLocation = neighborChunk.getBlock(5, world.getHighestBlockYAt(neighborChunkX, neighborChunkZ), 5).getLocation();
+
+                    while(regionDataManager.hasData(neighborChunk)){
+                        neighborChunkZ++;
+                        neighborChunk = world.getChunkAt(neighborChunkX, neighborChunkZ);
+                        teleportingLocation = neighborChunk.getBlock(5, world.getHighestBlockYAt(neighborChunkX, neighborChunkZ), 5).getLocation();
+                    }
+                    player.teleport(teleportingLocation);
+
+                }else{
+                    e.setCancelled(true);
+                    player.setVelocity(player.getLocation().getDirection().multiply(-1.25));
+                }
+
                 String msg = messagesConfig.getMessage(Message.LAND_ENTRY_DENY);
                 RegionData data = regionDataManager.getDataFromChunk(chunk);
-
                 String ownerName = Bukkit.getOfflinePlayer(data.getOwnerUUID()).getName();
                 msg = Utils.replacePlaceholders("%player%", msg, ownerName);
                 chatFactory.sendPlayerMessage(msg, true, player, PREFIX);
 
-                player.setVelocity(player.getLocation().getDirection().multiply(-1.25));
             }
         }
     }
@@ -283,6 +304,7 @@ public class FlagWatcher implements Listener {
         }
     }
 
+    /*
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent e){
         Chunk chunkTeleportingTo = e.getTo().getChunk();
@@ -292,7 +314,7 @@ public class FlagWatcher implements Listener {
                 chatFactory.sendPlayerMessage("This region doesn't allow teleportation to this area!", true, e.getPlayer(), PREFIX);
             }
         }
-    }
+    }*/
 
     private boolean isFlagEnabled(Chunk chunk, RegionFlagType rfType){
         RegionData data = regionDataManager.getDataFromChunk(chunk);
